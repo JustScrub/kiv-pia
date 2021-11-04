@@ -25,10 +25,11 @@ $controller_info = isset($_GET["page"]) && array_key_exists($_GET["page"],CONTRO
                  (CONTROLLER_LIST[DEFAULT_PAGE]);
 
 
-//$loader = new Twig\Loader\FilesystemLoader("Views/");
-//$db = new \conference\Models\DB_Model;
+$loader = new Twig\Loader\FilesystemLoader("Views/");
+$twig = new Twig\Environment($loader);
+$db = new \conference\Models\DB_Model;
 
-$controller = new $controller_info["class_name"];
+$controller = new $controller_info["class_name"]($twig,$db);
 $controller->do_stuff();
 
 ?>

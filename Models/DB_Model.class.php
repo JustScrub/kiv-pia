@@ -10,7 +10,7 @@ class DB_Model
 
     public function __construct()
     {
-        $this->pdo = new PDO();
+        //$this->pdo = new PDO();
     }
 
 }

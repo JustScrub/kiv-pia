@@ -2,18 +2,29 @@
 
 namespace conference\Controllers;
 
+use conference\Models\DB_Model;
+use Twig\Environment;
 
 class Test implements IController
 {
-    public function __construct()
+    const VIEW = "Test.view.twig";
+
+    /**
+     * @var Environment
+     */
+    private $twig;
+
+    /**
+     * @param $twig Environment
+     * @param $pdo DB_Model
+     */
+    public function __construct($twig,$pdo)
     {
-        ob_start();
-        require_once VIEW_DIR."Test.view.php";
-        $this->html = ob_get_clean();
+        $this->twig = $twig;
     }
 
     public function do_stuff()
     {
-        echo $this->html;
+       echo $this->twig->render(self::VIEW,array("title" => "TEST"));
     }
 }
