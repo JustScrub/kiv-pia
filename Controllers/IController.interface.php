@@ -1,6 +1,6 @@
 <?php
 
-namespace conference\controller;
+namespace conference\Controllers;
 
 interface IController
 {

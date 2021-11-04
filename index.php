@@ -1,12 +1,34 @@
 <?php
-namespace conference;
 require "config.php";
+require_once "Composer/vendor/autoload.php";
+
+spl_autoload_register(
+    function ($class_name){
+
+        $file_name = str_replace(NAMESPACE_ROOT,ROOT_DIR,$class_name);
+
+
+        foreach(EXTENSIONS as $ext){
+            if(file_exists($file_name.$ext)){
+                $file_name .= $ext;
+                break;
+            }
+        }
+
+        require_once $file_name;
+
+    }
+);
 
 $controller_info = isset($_GET["page"]) && array_key_exists($_GET["page"],CONTROLLER_LIST) ?
                  (CONTROLLER_LIST[$_GET["page"]]) :
                  (CONTROLLER_LIST[DEFAULT_PAGE]);
-require $controller_info["file_name"];
+
+
+//$loader = new Twig\Loader\FilesystemLoader("Views/");
+//$db = new \conference\Models\DB_Model;
 
 $controller = new $controller_info["class_name"];
 $controller->do_stuff();
+
 ?>

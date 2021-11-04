@@ -1,8 +1,7 @@
 <?php
 
-namespace conference\controller;
+namespace conference\Controllers;
 
-use const conference\VIEW_DIR;
 
 class Test implements IController
 {

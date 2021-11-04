@@ -1,5 +1,5 @@
 <?php
-namespace conference\view;
+namespace conference\Views;
 
 function common_header($title){
     ?>

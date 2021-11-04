@@ -1,5 +1,6 @@
 <?php
-namespace conference\view;
+namespace conference\Views;
+require_once "commonHTML.view.php";
 
 common_header("test page");
 ?>
