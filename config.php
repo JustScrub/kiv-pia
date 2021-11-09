@@ -6,7 +6,7 @@ const CONTR_DIR = ROOT_DIR."/Controllers/";
 const MODEL_DIR = ROOT_DIR."/Models/";
 const VIEW_DIR = ROOT_DIR."/Views/";
 const EXTENSIONS = array(
-    ".interface.php", ".class.php"
+    ".interface.php", ".class.php", ".abstract.php"
 );
 
 const NAMESPACE_ROOT = "conference";

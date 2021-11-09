@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `pravo` (
     DEFAULT CHARACTER SET = utf8
     COLLATE = utf8_czech_ci;
 
-BEGIN TRANSACTION `pravo_insert`;
+START TRANSACTION;
 INSERT INTO `pravo` (`id_pravo`, `nazev`, `vaha`) VALUES (1, 'SuperAdmin', 20);
 INSERT INTO `pravo` (`id_pravo`, `nazev`, `vaha`) VALUES (2, 'Admin', 10);
 INSERT INTO `pravo` (`id_pravo`, `nazev`, `vaha`) VALUES (3, 'Recenzent', 5);
@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `uzivatel` (
     `id_uzivatel` INT NOT NULL AUTO_INCREMENT,
     `id_pravo` INT NOT NULL DEFAULT 3,
     `jmeno` VARCHAR(60) NOT NULL,
+    `prijmeni` VARCHAR(60) NOT NULL,
     `login` VARCHAR(30) NOT NULL,
     `heslo` VARCHAR(60) NOT NULL,
     `email` VARCHAR(35) NOT NULL,
@@ -42,11 +43,24 @@ CREATE TABLE IF NOT EXISTS `clanek` (
     `nazev`     VARCHAR(100) NOT NULL,
     `klicova_slova` VARCHAR(200),
     `popis` VARCHAR(2000),
-    `schvalen` BOOL,
+    `schvalen` BOOLEAN NOT NULL,
+    `datum_schvaleni` DATE,
     INDEX `fk_clanku_uzivatele_idx` (`id_autor` ASC),
     CONSTRAINT `fk_clanku_uzivatele`
     FOREIGN KEY (`id_autor`)
     REFERENCES  `uzivatel` (`id_uzivatel`))
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8
+    COLLATE = utf8_czech_ci;
+
+DROP TABLE IF EXISTS `recenzenti` ;
+
+CREATE TABLE IF NOT EXISTS `recenzenti` (
+    `id_clanek` INT NOT NULL,
+    `id_uzivatel` INT NOT NULL,
+    CONSTRAINT `pk_recenzenti`
+    PRIMARY KEY (`id_clanek`,`id_uzivatel`)
+    )
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8
     COLLATE = utf8_czech_ci;

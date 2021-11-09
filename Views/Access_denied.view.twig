@@ -1,0 +1,13 @@
+{% extends Outline.view.twig %}
+
+{% block BODY %}
+
+    {% if reason == "login" %}
+    <div>Litujeme, pro zobrazení této stránky se musíte přihlásit.</div>
+    {% elseif reason == "rights" %}
+    <div>Litujeme, pro zobrazení této stránky nemáte příslušná práva</div>
+    {% else %}
+    <div>Litujeme, ale přístup k této stránce byl odepřen.</div>
+    {% endif %}
+
+{% endblock %}

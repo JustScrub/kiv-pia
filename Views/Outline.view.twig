@@ -1,13 +1,51 @@
+{% import "Makra.twig" as macros %}
+
 <!doctype html>
 <html lang="en">
     <head>
         <title>{{ title | striptags }}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
     </head>
 
     <body>
+    <div class = "container-md">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin:24px 0;">
+            <a class="navbar-brand" href="javascript:void(0)">Logo</a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navb" aria-expanded="true">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="navbar-collapse collapse show" id="navb" style="">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=uvod">Úvod</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=clanky">Články</a>
+                    </li>
+                </ul>
+
+                <div class="dropdown dropdown-menu-right">
+                    <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown">Přihlášení</button>
+                    <div class="dropdown-menu">
+
+                        {# add login form / logged nav here #}
+                        {% if logged %}
+                        {{ macros.logged_form(user,1) }}
+                        {% else %}
+                        {{ macros.login_form() }}
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+        </nav>
+
 
     {% block BODY %}
 
@@ -15,5 +53,13 @@
 
     {% endblock BODY %}
 
+    </div>
     </body>
+    <footer>
+
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </html>

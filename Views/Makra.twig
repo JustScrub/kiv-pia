@@ -1,0 +1,33 @@
+{# login form #}
+{% macro login_form() %}
+
+    <form method="POST" id="login_form" autocomplete="off" class="dropdown-item">
+        <input class="form-control mr-sm-2" type="text" placeholder="login nebo e-mail" name="login">
+        <input class="form-control mr-sm-2" type="password" placeholder="heslo" name = "pass">
+        <input type="submit" class="btn btn-success my-2 my-sm-0" value="Login" name="log_but">
+    </form>
+    <div class="dropdown-item">
+        Nemáte účet? <a href="index.php?page=registrace">Registrovat</a>
+    </div>
+
+{% endmacro %}
+
+{# user already logged in #}
+{% macro logged_form(name, rights) %}
+
+    Vítejte, {{ name }}.
+            <a class="dropdown-item" href="index.php?page=my_articles">Mé články</a>
+        {% if rights <= 3  %}
+            <a class="dropdown-item" href="index.php?page=recenzovat">Recenzovat</a>
+        {% endif %}
+        {% if rights <= 2  %}
+                <a class="dropdown-item" href="index.php?page=sprava_uzivatelu">Správa uživatelů</a>
+                <a class="dropdown-item" href="index.php?page=priradit_recenzenta">Přiřadit k recenzi</a>
+        {% endif %}
+        {% if rights <= 1  %}
+                <a class="dropdown-item" href="index.php?page=sprava_adminu">Správa adminů</a>
+        {% endif %}
+            <form method="POST" id="logout_form" autocomplete="off" class="dropdown-item">
+                <input type="submit" class="btn btn-success my-2 my-sm-0" value="Odhlásit" name="logout_but">
+            </form>
+{% endmacro %}
