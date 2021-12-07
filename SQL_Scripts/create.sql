@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS `uzivatel` (
     `id_pravo` INT NOT NULL DEFAULT 3,
     `jmeno` VARCHAR(60) NOT NULL,
     `prijmeni` VARCHAR(60) NOT NULL,
-    `login` VARCHAR(30) NOT NULL,
+    `login` VARCHAR(30) UNIQUE NOT NULL,
     `heslo` VARCHAR(60) NOT NULL,
-    `email` VARCHAR(35) NOT NULL,
+    `email` VARCHAR(35) UNIQUE NOT NULL,
     PRIMARY KEY (`id_uzivatel`),
     INDEX `fk_uzivatele_prava_idx` (`id_pravo` ASC),
     CONSTRAINT `fk_uzivatele_prava`
@@ -57,9 +57,16 @@ DROP TABLE IF EXISTS `recenzenti` ;
 
 CREATE TABLE IF NOT EXISTS `recenzenti` (
     `id_clanek` INT NOT NULL,
-    `id_uzivatel` INT NOT NULL,
+    `id_recenzent` INT NOT NULL,
     CONSTRAINT `pk_recenzenti`
-    PRIMARY KEY (`id_clanek`,`id_uzivatel`)
+    PRIMARY KEY (`id_clanek`,`id_recenzent`),
+    CONSTRAINT  `fk_recenzent_clanek`
+    FOREIGN KEY (`id_clanek`)
+    REFERENCES `clanek` (`id_clanek`),
+    INDEX `fk_recenzent_uzivatel_idx` (`id_recenzent`),
+    CONSTRAINT  `fk_recenzent_uzivatel`
+    FOREIGN KEY (`id_recenzent`)
+    REFERENCES `uzivatel` (`id_uzivatel`)
     )
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8

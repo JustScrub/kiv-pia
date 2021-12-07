@@ -2,12 +2,11 @@
 
 namespace conference\Models;
 
-const USER_ID = "id_uzivatel";
-const USER_NAME = "jmeno_a_prijmeni";
-const USER_RIGHTS = "pravo";
-
 class Session_Model
 {
+    const USER_ID = "id_uzivatel";
+    const USER_NAME = "jmeno_a_prijmeni";
+    const USER_RIGHTS = "pravo";
 
     public function __construct()
     {
@@ -39,10 +38,12 @@ class Session_Model
         unset($_SESSION[$key]);
     }
 
+    //user_data: data as passed by DB_Model from get_user_data
     public function login($user_data){
-        $this->set(USER_ID,$user_data["id_uzivatel"]);
-        $this->set(USER_NAME,"$user_data[jmeno] $user_data[prijmeni]");
-        $this->set(USER_RIGHTS,$user_data["pravo"]);
+        if(!$user_data) return;
+        $this->set(self::USER_ID,$user_data["id_uzivatel"]);
+        $this->set(self::USER_NAME,"$user_data[jmeno] $user_data[prijmeni]");
+        $this->set(self::USER_RIGHTS,$user_data["id_pravo"]);
     }
 
     public function logout(){
@@ -52,7 +53,7 @@ class Session_Model
     }
 
     public function is_logged(){
-        return $this->is_set(USER_ID);
+        return $this->is_set(self::USER_ID);
     }
 
 }

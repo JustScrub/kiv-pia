@@ -7,16 +7,21 @@ use Twig\Environment;
 
 class Test extends ALoginController
 {
-    const VIEW = "Test.view.twig";
+     public function __construct($twig, $pdo)
+     {
+         parent::__construct($twig, $pdo);
+         $this->VIEW = "Test.view.twig";
+     }
 
     public function do_stuff()
     {
         $this->login_process();
         $this->logout_process();
 
-       echo $this->twig->render(self::VIEW,
+       echo $this->twig->render($this->VIEW,
 
            array("title" => "TEST", "user" => $this->session->get("jmeno_a_prijmeni"),
+           "rights" => $this->session->get("pravo"),
            "logged" => $this->session->is_logged())
        );
     }

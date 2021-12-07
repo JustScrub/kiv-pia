@@ -1,0 +1,86 @@
+{% extends "Outline.view.twig" %}
+
+{% block JS_Script %}
+    <script>
+        $(document).ready(function(){
+            $('#pwd, #pwd2').on('keyup', () => {
+                if ($('#pwd').val() !== $('#pwd2').val()) {
+                    $('#pwd2').removeClass("border border-success").addClass("border border-danger");
+                    $('#reg_but').prop("disabled",true);
+                } else{
+                    $('#pwd2').removeClass("border border-danger").addClass("border border-success");
+                    $('#reg_but').prop("disabled",false);
+                }
+            });
+        });
+    </script>
+{% endblock JS_Script %}
+
+
+{% block BODY %}
+
+    {% if not registered %}
+        {% if same|length > 0 %}
+           Litujeme, Vámi zadaný {{ same|join(" i ") }} již existuje. Zvolte prosím jiný.
+        {% endif %}
+    <form class="form-horizontal" method="POST">
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="fname">Jméno:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="fname" placeholder="Zadejte své jméno" name="fname" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="sname">Příjmení:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="sname" placeholder="zadejte své příjmení" name="sname" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="login">Login:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="login" placeholder="Zadejte přihlašovací jméno" name="login" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="email">Email:</label>
+            <div class="col-sm-10">
+                <input type="email" class="form-control" id="email" placeholder="Zadejte svůj email" name="email" required>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="pwd">Heslo:</label>
+            <div class="col-sm-10">
+                <input type="password" class="form-control" id="pwd" placeholder="Zadejte heslo" name="pwd" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="pwd2">Heslo znovu:</label>
+            <div class="col-sm-10">
+                <input type="password" class="form-control" id="pwd2" placeholder="Pro kontrolu zadejte heslo znovu" name="pwd2">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input type="submit" class="btn btn-primary" value="Odeslat" name="reg_but" id="reg_but" disabled>
+            </div>
+        </div>
+    </form>
+
+    {% else %}
+
+    <div>
+        <p>Gratulujeme, registrace proběhla úspěšně!</p>
+        <p><a href="index.php?page=uvod">Vrátit se na úvod</a></p>
+    </div>
+
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "Outline.view.twig" %}
+
+{% block BODY %}
+
+    <h1 class="bg-danger text-center">SPRÁVA UŽIVATELŮ</h1>
+    <table>
+        <tr>
+            <th>ID</th><th>Login</th><th>Jméno</th><th>Příjmení</th><th>Email</th><th>Právo</th><th>Akce</th>
+        </tr>
+        {% for u in user_list %}
+            <tr>
+                <td>{{ u.id_uzivatel }}</td>
+                <td>{{ u.login }}</td>
+                <td>{{ u.jmeno }}</td>
+                <td>{{ u.prijmeni }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                    <select name="prava_select" form=""{{ u.id_uzivatel }}"">
+                    {% block prava_select %}
+                    some options
+                    {% endblock %}
+                    </select>
+                </td>
+                <td>
+                    <form action="" id="{{ u.id_uzivatel }}">
+                        <input type="submit" name="delete" value="Smazat">
+                        <input type="submit" name="set_role" value="Upravit roli">
+                        <input type="hidden" value="{{ u.id_uzivatel }}">
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
+{% endblock %}
