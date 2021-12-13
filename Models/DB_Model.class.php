@@ -4,16 +4,22 @@ namespace conference\Models;
 
 use PDO;
 use PDOException;
+use function Sodium\add;
 
 class DB_Model
 {
     private $pdo;
+    private $last_err;
 
     public function __construct()
     {
         $this->pdo = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_NAME, "root");
         $this->pdo->exec("set names utf8");
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
+    public function last_err(){
+        return $this->last_err;
     }
 
     private function execute_query($query){
@@ -23,6 +29,8 @@ class DB_Model
         } catch (PDOException $ex){
             echo "Nastala výjimka: ". $ex->getCode() ."<br>"
                 ."Text: ". $ex->getMessage();
+
+            $this->last_err = $ex->getCode();
             return null;
         }
     }
@@ -71,8 +79,8 @@ class DB_Model
     const UNKNOWN_LOGIN = 1;
     const WRONG_PASSWORD = 2;
     const SUCCESS = 0;
-    public function verify_user($login,$pwd){
-        $pwd_hash = $this->get_user_data_by_login($login);
+    public function verify_user($login_or_email,$pwd){
+        $pwd_hash = $this->get_user_data($login_or_email);
         if(!$pwd_hash) return self::UNKNOWN_LOGIN;
         $pwd_hash =  $pwd_hash["heslo"];
         return $this->verify_user_knowing_hash($pwd,$pwd_hash);
@@ -83,6 +91,40 @@ class DB_Model
         return self::WRONG_PASSWORD;
     }
 
+
+    public function articles_by_author($author_id){
+        return $this->select_query(TB_ARTICLE,"id_autor=$author_id","id_clanek", "desc");
+    }
+
+    public function get_article($id){
+        return $this->select_query(TB_ARTICLE,"id_clanek=$id");
+    }
+
+    public function get_article_author($id_ar){
+        return $this->select_query(VW_AUTHORS_ARTICLES, "id_clanek=$id_ar");
+    }
+
+    public function get_articles_to_add_recenzenti_to(){
+        return $this->select_query(VW_NEED_REVIEW,"schvalen < 2");
+    }
+
+    public function get_article_reviewers($id_article){
+        //SELECT * FROM `uzivatel` u WHERE u.id_uzivatel in (SELECT r.id_recenzent from `recenzenti` r WHERE r.id_clanek = $id_article);
+        $q = "SELECT * FROM ".TB_USERS." u WHERE u.id_uzivatel in (SELECT r.id_recenzent from ".TB_REVIEW." r WHERE r.id_clanek = $id_article);";
+        $res = $this->execute_query($q);
+        if(!$res) return null;
+        return $res->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function get_recenzenti(){
+        return $this->select_query(TB_USERS,"id_pravo<4");
+    }
+
+    public function artorev($id_reviewer){
+        //SELECT * FROM clanek c WHERE c.id_clanek IN (SELECT r.id_clanek FROM recenzenti r WHERE r.id_recenzent = $id_reviewer and r.hodnoceni is null);
+        return $this->select_query(TB_ARTICLE." c",
+            "c.id_clanek IN (SELECT r.id_clanek FROM recenzenti r WHERE r.id_recenzent = $id_reviewer and r.hodnoceni is null)");
+    }
     //// INSERTS
 
     public function insert_query($tableName, $insertStatement, $insertValues) {
@@ -95,13 +137,67 @@ class DB_Model
         $insert_statement = "id_pravo, login, jmeno, prijmeni, email, heslo";
         $pwd = password_hash($pwd,PASSWORD_DEFAULT);
         $insert_values = "$pravo,'$login','$fname','$sname','$mail','$pwd'";
-        $this->insert_query(TB_USERS,$insert_statement,$insert_values);
+       return $this->insert_query(TB_USERS,$insert_statement,$insert_values);
     }
 
     public function register($fname,$sname,$login,$mail,$pwd){
-        $this->addUser($fname,$sname,$login,$mail,$pwd,4);
+        return $this->addUser($fname,$sname,$login,$mail,$pwd,4);
+    }
+
+    public function addArticle($id_author,$name,$file_name,$key_words,$desc){
+        //sqli safety
+        $key_words = addslashes($key_words);
+        $desc = addslashes($desc);
+        $name = addslashes($name);
+
+        $insert_statement = "id_autor,nazev,nazev_souboru,klicova_slova,popis";
+        $insert_values = "$id_author,'$name','$file_name','$key_words','$desc'";
+        return $this->insert_query(TB_ARTICLE,$insert_statement,$insert_values);
+    }
+
+    public function insert_recenzent($id_clanek,$id_recenzent){
+        $statement = "id_clanek,id_recenzent";
+        $values = "$id_clanek,$id_recenzent";
+        return $this->insert_query(TB_REVIEW,$statement,$values);
     }
     //// UPDATES
+    private function update_query( $tableName,  $updateStatementWithValues,  $whereStatement) {
+        $q = "UPDATE $tableName SET $updateStatementWithValues WHERE $whereStatement";
+        $obj = $this->execute_query($q);
+        return ($obj != null);
+    }
+
+    public function update_rights($id_uzivatel, $id_pravo){
+        $this->update_query("uzivatel","id_pravo=$id_pravo","id_uzivatel=$id_uzivatel");
+    }
+
+    public function update_ardesc($id,$new_desc){
+        $this->update_query(TB_ARTICLE,"popis='$new_desc'","id_clanek=$id");
+    }
+    public function ardecl($id){
+        return $this->update_query(TB_ARTICLE,"schvalen=2","id_clanek=$id");
+    }
+
+    public function revar($id_rev,$id_ar,$rev_val,$rev_desc){
+        $vals = "hodnoceni=$rev_val, poznamky='$rev_desc'";
+        $where = "id_clanek=$id_ar and id_recenzent=$id_rev";
+        // echo $vals . "     " . $where;
+        return $this->update_query(TB_REVIEW,$vals,$where);
+    }
+
     //// DELETES
+    private function delete_query( $tableName,  $whereStatement) {
+        $q = "DELETE FROM $tableName WHERE $whereStatement";
+        $obj = $this->execute_query($q);
+        return ($obj != null);
+    }
+
+    public function deleteUser($id_uzivatel){
+        $this->delete_query("uzivatel","id_uzivatel = $id_uzivatel");
+    }
+
+    public function  deletArticle($id_clanek){
+        return $this->delete_query(TB_ARTICLE,"id_clanek = $id_clanek");
+    }
 
 }

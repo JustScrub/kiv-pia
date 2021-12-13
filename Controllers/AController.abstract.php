@@ -25,7 +25,7 @@ abstract class AController
         $this->session = new Session_Model;
         $this->VIEW = null;
         $this->view_data = array(
-            "title" => "",
+            "title" => $_GET["page"] ?? "",
             "bad_login" => false,
             "bad_pass" => false,
             "logged" => false,
@@ -34,6 +34,13 @@ abstract class AController
         );
     }
     public abstract function do_stuff();
+
+    public function init()
+    {
+        $this->logout_process();
+        $this->login_process();
+        $this->set_session_data();
+    }
 
     public function set_session_data(){
         if($this->view_data["logged"] = $this->session->is_logged()){
@@ -50,5 +57,25 @@ abstract class AController
         if(!isset($_POST[self::LOGOUT_BUTTON_NAME])) return;
 
         $this->session->logout();
+        header('Location: index.php');
+    }
+
+    public function login_process(){
+        if(!isset($_POST[self::LOGIN_BUTTON_NAME])) return -1;
+
+        $user = $this->pdo->get_user_data($_POST[self::LOGIN_INP_NAME]);
+        if(!$user) {
+            $this->view_data["bad_login"] = true;
+            return DB_Model::UNKNOWN_LOGIN;
+        }
+
+        if($this->pdo->verify_user_knowing_hash($_POST[self::PASS_INP_NAME],$user["heslo"]) != DB_Model::SUCCESS)
+        {
+            $this->view_data["bad_pass"] = true;
+            return DB_Model::WRONG_PASSWORD;
+        }
+
+        $this->session->login($user);
+        return DB_Model::SUCCESS;
     }
 }

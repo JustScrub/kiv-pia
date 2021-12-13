@@ -1,0 +1,45 @@
+{% extends "Outline.view.twig" %}
+
+{% block BODY %}
+
+    {% if bad_file_type %}
+        <p>Soubor musí být ve formátu PDF!</p>
+    {% endif %}
+    <form class="form-horizontal" enctype="multipart/form-data" method="post">
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="nazev">Název:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="nazev" placeholder="Název článku" name="nazev" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="klicova_slova">Klíčová slova:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="klicova_slova" placeholder="až 200 znaků" name="klicova_slova">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="popis">Popis článku:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="popis" name="popis" placeholder="Až 2000 znaků. Může být změněno později."></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="fl">Článek v PDF:</label>
+            <div class="col-sm-10">
+                <input type="file" class="form-control-file" id="fl" name="fl" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" name="submit">Odeslat</button>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

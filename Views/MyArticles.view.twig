@@ -1,0 +1,91 @@
+{% extends "Outline.view.twig" %}
+{% import "Makra.twig" as macros %}
+
+{% block BODY %}
+    <div class="row" style="margin-bottom: 10px">
+        <div class="col-lg-12">
+            <span class="neposouzeno">neposouzeno</span>
+            <span class="zamitnuto">zamítnuto</span>
+            <span class="schvaleno">schváleno</span>
+            <a href="index.php?page=pridat_clanek" class="btn btn-dark float-lg-right">Přidat článek</a>
+        </div>
+    </div>
+    {% for clanek in clanky %}
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr class="{{ macros.schvaleni_stav_class(clanek) }}">
+                            <td><a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
+                        </tr>
+                        {# <tr><td>{{ clanek.nazev_souboru }}</td></tr> #}
+                        <tr>
+                            <td>Klíčová slova: {{ clanek.klicova_slova }}</td>
+                        </tr>
+                        <tr>
+                            <td id="{{ clanek.id_clanek ~ "-desc" }}">{{ clanek.popis }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-2" id="{{ clanek.id_clanek ~ "-formdiv" }}">
+                {% if not clanek.schvalen %}
+                <button onclick="edit_on({{ clanek.id_clanek }})" class="btn btn-dark float-lg-right edit_but">Editovat</button>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block CSS %}
+    <style>
+        .schvaleno{
+            background-color: #B1FFAD;
+        }
+        .zamitnuto{
+           background-color: #FFB2AD;
+        }
+        .neposouzeno{
+            background-color: #ADE3FF;
+        }
+
+    </style>
+{% endblock %}
+
+{% block JS_Script %}
+    <script>
+        function edit_on(id) {
+            let desc_id = "#"+id+"-desc";
+            let formdiv_id = "#"+id+"-formdiv";
+            let form_id = "#"+id+"-form";
+
+            let popis_obj = $( desc_id );
+            let form_div = $( formdiv_id );
+            let popis = popis_obj.text();
+
+            popis_obj.html(
+                "<textarea class='form-control' name='popis_edit' form='"+form_id+"'>"+popis+"</textarea>"
+            );
+
+            $(".edit_but").hide();
+
+            form_div.html(
+                `
+                <div class='dropdown float-lg-right'>
+                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Možnosti
+                        <span class="caret"></span>
+                     </button>
+                    <form method='post' id='${form_id}'>
+                        <ul class='dropdown-menu'>
+                         <li><input type='submit' name='edit_ok' value='Editovat popis' class='btn btn-primary'></li>
+                         <li><input type='submit' name='ar_delete' value='Smazat příspěvek' class='btn btn-dark'></li>
+                         <li><input type='submit' name='edit_cancel' value='Zrušit' class='btn btn-danger'></li>
+                        </ul>
+                        <input type="hidden" value="${id}" name="ar_id">
+                    </form>
+                </div>
+                `
+            )
+        }
+    </script>
+{% endblock %}

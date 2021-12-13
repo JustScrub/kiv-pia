@@ -1,6 +1,9 @@
 {% extends "Management.view.twig" %}
 
 {% block prava_select %}
-    <option value="2" {{ u.id_pravo == 2? "selected": ""}}>Admin</option>
     <option value="1" {{ u.id_pravo == 1? "selected": ""}}>SuperAdmin</option>
+    <option value="2" {{ u.id_pravo == 2? "selected": ""}}>Admin</option>
+
+    <option value="3">Recenzent</option>
+    <option value="4">Autor</option>
 {% endblock %}

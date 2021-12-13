@@ -1,0 +1,46 @@
+{% extends "Outline.view.twig" %}
+
+{% block BODY %}
+    {% for clanek in clanky %}
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr>
+                            <td>Autor: {{ clanek.autor_jmeno }}</td>
+                        </tr>
+                        <tr>
+                            <td>Název: <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
+                        </tr>
+                        <tr>
+                            <td>Klíčová slova: {{ clanek.klicova_slova }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ clanek.popis }}</td>
+                        </tr>
+
+                        {% for recenzent in clanek.recenzenti %}
+                            <tr>
+                                <td>Recenzent: {{ recenzent.jmeno ~ " " ~ recenzent.prijmeni }}</td>
+                                <td>Hodnocení: {{ recenzent.hodnoceni }}/10</td>
+                            </tr>
+                            <tr>
+                                <td>Poznámky: {{ recenzent.poznamky }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        <tr>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="submit" name="schvalit" value="Schválit" class="btn btn-success">
+                                    <input type="submit" name="zamitnout" value="Zamítnout" class="btn btn-danger">
+                                    <input type="submit" name="vratit" value="Vrátit k recenzi" class="btn btn-primary">
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

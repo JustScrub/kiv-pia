@@ -1,6 +1,11 @@
 {% extends "Management.view.twig" %}
 
 {% block prava_select %}
+    {% if rights == 1 %}
+<option value="1">SuperAdmin</option>
+<option value="2">Admin</option>
+    {% endif %}
 <option value="3" {{ u.id_pravo == 3? "selected": ""}}>Recenzent</option>
 <option value="4" {{ u.id_pravo == 4? "selected": ""}}>Autor</option>
 {% endblock %}
+

@@ -16,13 +16,13 @@
 {% macro logged_form(name, rights) %}
 
     Vítejte, {{ name }}.
-            <a class="dropdown-item" href="index.php?page=my_articles">Mé články</a>
+            <a class="dropdown-item" href="index.php?page=moje_clanky">Mé články</a>
         {% if rights <= 3  %}
             <a class="dropdown-item" href="index.php?page=recenzovat">Recenzovat</a>
         {% endif %}
         {% if rights <= 2  %}
-                <a class="dropdown-item" href="index.php?page=sprava_uzivatelu">Správa uživatelů</a>
                 <a class="dropdown-item" href="index.php?page=priradit_recenzenta">Přiřadit k recenzi</a>
+                <a class="dropdown-item" href="index.php?page=sprava_uzivatelu">Správa uživatelů</a>
         {% endif %}
         {% if rights <= 1  %}
                 <a class="dropdown-item" href="index.php?page=sprava_adminu">Správa adminů</a>
@@ -30,4 +30,9 @@
             <form method="POST" id="logout_form" autocomplete="off" class="dropdown-item">
                 <input type="submit" class="btn btn-success my-2 my-sm-0" value="Odhlásit" name="logout_but">
             </form>
+{% endmacro %}
+
+
+{% macro schvaleni_stav_class(clanek) %}
+{% if clanek.schvalen==0 %}neposouzeno{% elseif clanek.schvalen==1 %}schvaleno{% else %}zamitnuto{% endif %}
 {% endmacro %}

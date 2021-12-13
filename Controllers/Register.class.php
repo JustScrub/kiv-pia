@@ -5,7 +5,7 @@ namespace conference\Controllers;
 use conference\Models\DB_Model;
 use conference\Models\Session_Model;
 
-class Register extends ALoginController
+class Register extends AController
 {
 
     public function __construct($twig, $pdo)
@@ -16,9 +16,7 @@ class Register extends ALoginController
 
     public function do_stuff()
     {
-        $this->logout_process();
-        $this->login_process();
-        $this->set_session_data();
+        $this->init();
 
         $this->view_data["registered"] = false;
         $this->view_data["same"] = array();

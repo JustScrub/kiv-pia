@@ -41,9 +41,10 @@ CREATE TABLE IF NOT EXISTS `clanek` (
     `id_clanek` INT PRIMARY KEY AUTO_INCREMENT,
     `id_autor`  INT NOT NULL,
     `nazev`     VARCHAR(100) NOT NULL,
+    `nazev_souboru` VARCHAR(100) UNIQUE NOT NULL,
     `klicova_slova` VARCHAR(200),
     `popis` VARCHAR(2000),
-    `schvalen` BOOLEAN NOT NULL,
+    `schvalen` INT NOT NULL CHECK (`schvalen` in (0,1,2)), -- 0: neposouzen, 1: schvalen, 2: zamitnut
     `datum_schvaleni` DATE,
     INDEX `fk_clanku_uzivatele_idx` (`id_autor` ASC),
     CONSTRAINT `fk_clanku_uzivatele`
@@ -58,6 +59,8 @@ DROP TABLE IF EXISTS `recenzenti` ;
 CREATE TABLE IF NOT EXISTS `recenzenti` (
     `id_clanek` INT NOT NULL,
     `id_recenzent` INT NOT NULL,
+    `hodnoceni` INT CHECK (`hodnoceni` > 0 AND `hodnoceni` < 10),
+    `poznamky` VARCHAR(200),
     CONSTRAINT `pk_recenzenti`
     PRIMARY KEY (`id_clanek`,`id_recenzent`),
     CONSTRAINT  `fk_recenzent_clanek`
@@ -72,4 +75,11 @@ CREATE TABLE IF NOT EXISTS `recenzenti` (
     DEFAULT CHARACTER SET = utf8
     COLLATE = utf8_czech_ci;
 
+DROP VIEW IF EXISTS `nedostatek_recenzentu`;
 
+CREATE VIEW IF NOT EXISTS `nedostatek_recenzentu` AS
+    SELECT * from clanek c where 3 > (SELECT count(r.id_recenzent) from recenzenti r WHERE r.id_clanek = c.id_clanek);
+
+DROP VIEW IF EXISTS `autori_clanky`;
+CREATE VIEW IF NOT EXISTS `autori_clanky` AS
+    SELECT * FROM uzivatel u, clanek c WHERE u.id_uzivatel = c.id_autor;

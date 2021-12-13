@@ -5,7 +5,7 @@ namespace conference\Controllers;
 use conference\Models\DB_Model;
 use Twig\Environment;
 
-class Test extends ALoginController
+class Test extends AController
 {
      public function __construct($twig, $pdo)
      {
