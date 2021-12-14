@@ -23,3 +23,5 @@ insert into uzivatel (jmeno, prijmeni, email, id_pravo, login, heslo) values ('P
 insert into uzivatel (jmeno, prijmeni, email, id_pravo, login, heslo) values ('Robinetta', 'Arnoll', 'rarnollm@wsj.com', 3, 'rarnollm', '64d1e774568fad5003939d18b71034674e3f17a0');
 insert into uzivatel (jmeno, prijmeni, email, id_pravo, login, heslo) values ('Roseanna', 'Enticott', 'renticottn@list-manage.com', 3, 'renticottn', '64d1e774568fad5003939d18b71034674e3f17a0');
 insert into uzivatel (jmeno, prijmeni, email, id_pravo, login, heslo) values ('Casandra', 'Kinworthy', 'ckinworthyo@boston.com', 3, 'ckinworthyo', '64d1e774568fad5003939d18b71034674e3f17a0');
+
+insert into uzivatel (jmeno, prijmeni, email, id_pravo, login, heslo) values ('R', 'E', '546451@list-manage.com', 3, 'RE', '64d1e774568fad5003939d18b71034674e3f17a0');

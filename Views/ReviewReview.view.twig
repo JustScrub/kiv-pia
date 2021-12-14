@@ -4,8 +4,8 @@
     {% for clanek in clanky %}
         <div class="row">
             <div class="col-lg-10">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
+                <div>
+                    <table class="table table-bordered table-hover">
                         <tr>
                             <td>Autor: {{ clanek.autor_jmeno }}</td>
                         </tr>
@@ -21,17 +21,26 @@
 
                         {% for recenzent in clanek.recenzenti %}
                             <tr>
-                                <td>Recenzent: {{ recenzent.jmeno ~ " " ~ recenzent.prijmeni }}</td>
-                                <td>Hodnocení: {{ recenzent.hodnoceni }}/10</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-10">
+                                            Recenzent: {{ recenzent.jmeno ~ " " ~ recenzent.prijmeni }}
+                                        </div>
+                                        <div class="col-2 text-right">
+                                            {{ recenzent.hodnoceni }}/10
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
-                                <td>Poznámky: {{ recenzent.poznamky }}</td>
+                                <td style="padding-left: 30px">Poznámky: {{ recenzent.poznamky }}</td>
                             </tr>
                         {% endfor %}
 
                         <tr>
                             <td>
                                 <form method="post" class="form-inline">
+                                    <input type="hidden" name="ar_id" value="{{ clanek.id_clanek }}">
                                     <input type="submit" name="schvalit" value="Schválit" class="btn btn-success">
                                     <input type="submit" name="zamitnout" value="Zamítnout" class="btn btn-danger">
                                     <input type="submit" name="vratit" value="Vrátit k recenzi" class="btn btn-primary">

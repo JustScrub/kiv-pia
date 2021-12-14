@@ -31,6 +31,7 @@ class DB_Model
                 ."Text: ". $ex->getMessage();
 
             $this->last_err = $ex->getCode();
+            echo $query;
             return null;
         }
     }
@@ -120,11 +121,52 @@ class DB_Model
         return $this->select_query(TB_USERS,"id_pravo<4");
     }
 
+    /**
+     * ARticles TO REView
+     * @param $id_reviewer
+     * @return array|false|null
+     */
     public function artorev($id_reviewer){
         //SELECT * FROM clanek c WHERE c.id_clanek IN (SELECT r.id_clanek FROM recenzenti r WHERE r.id_recenzent = $id_reviewer and r.hodnoceni is null);
         return $this->select_query(TB_ARTICLE." c",
             "c.id_clanek IN (SELECT r.id_clanek FROM recenzenti r WHERE r.id_recenzent = $id_reviewer and r.hodnoceni is null)");
     }
+
+    /**
+     * ARticles with ENough REViewers
+     * gets all articles that have at least 3 reviewers (which is enough)
+     * (gets the opposite set of articles from <code>get_articles_to_add_recenzenti_to</code>)
+     */
+    public function arenrev(){
+        // (SELECT * FROM `clanek` WHERE schvalen=0) EXCEPT (SELECT * FROM nedostatek_recenzentu);
+        $res = $this->execute_query("(SELECT * FROM ".TB_ARTICLE." WHERE schvalen=0) EXCEPT (SELECT * FROM ".VW_NEED_REVIEW.");");
+        if(!$res) return null;
+        return $res->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * ARticle ALL REViewerS
+     * @param $id_ar
+     */
+    public function arallrevs($id_ar){
+        return $this->select_query(TB_REVIEW,"id_clanek=$id_ar");
+    }
+
+    /**
+     * ARticle ALL REViewerS with USER INFO
+     * @param $id_ar
+     * @return array|false|null
+     */
+    public function arallrevs_user_info($id_ar){
+        //select u.jmeno, u.prijmeni, r.hodnoceni, r.poznamky from uzivatel u, recenzenti r where r.id_clanek = $id_ar and r.id_recenzent = u.id_uzivatel;
+        $res = $this->execute_query(
+            "select u.jmeno, u.prijmeni, r.hodnoceni, r.poznamky from
+                  ".TB_USERS." u, ".TB_REVIEW." r 
+                  where r.id_clanek = $id_ar and r.id_recenzent = u.id_uzivatel;");
+        if(!$res) return null;
+        return $res->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     //// INSERTS
 
     public function insert_query($tableName, $insertStatement, $insertValues) {
@@ -171,13 +213,36 @@ class DB_Model
         $this->update_query("uzivatel","id_pravo=$id_pravo","id_uzivatel=$id_uzivatel");
     }
 
+    /**
+     * update ARticle DESCription
+     * @param $id
+     * @param $new_desc
+     */
     public function update_ardesc($id,$new_desc){
         $this->update_query(TB_ARTICLE,"popis='$new_desc'","id_clanek=$id");
     }
+
+    /**
+     * ARticle DECLine
+     * @param $id
+     * @return bool
+     */
     public function ardecl($id){
         return $this->update_query(TB_ARTICLE,"schvalen=2","id_clanek=$id");
     }
 
+    public function aracc($id){
+        return $this->update_query(TB_ARTICLE,"schvalen=1, datum_schvaleni=NOW()","id_clanek=$id");
+    }
+
+    /**
+     * REView ARticle
+     * @param $id_rev
+     * @param $id_ar
+     * @param $rev_val
+     * @param $rev_desc
+     * @return bool
+     */
     public function revar($id_rev,$id_ar,$rev_val,$rev_desc){
         $vals = "hodnoceni=$rev_val, poznamky='$rev_desc'";
         $where = "id_clanek=$id_ar and id_recenzent=$id_rev";
@@ -198,6 +263,10 @@ class DB_Model
 
     public function  deletArticle($id_clanek){
         return $this->delete_query(TB_ARTICLE,"id_clanek = $id_clanek");
+    }
+
+    public function delrevs($id_ar){
+        return $this->delete_query(TB_REVIEW,"id_clanek=$id_ar");
     }
 
 }

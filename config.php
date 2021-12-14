@@ -27,7 +27,7 @@ const CONTROLLER_LIST = array(
     "moje_clanky" => array("file_name" => CONTR_DIR."MyArticles.class.php", "class_name" => \conference\Controllers\MyArcticles::class),
     "priradit_recenzenta" => array("file_name" => CONTR_DIR."AddReviewer.class.php", "class_name" => \conference\Controllers\AddReviewer::class),
     "recenzovat" => array("file_name" => CONTR_DIR."ReviewArticle.class.php", "class_name" => \conference\Controllers\ReviewArticle::class),
-    "rozhodnout_recenze" => array()
+    "rozhodnout_recenze" => array("file_name" => CONTR_DIR."ReviewReview.class.php", "class_name" => \conference\Controllers\ReviewReview::class)
 );
 
 // DATABASE
