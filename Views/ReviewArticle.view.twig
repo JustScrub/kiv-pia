@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-lg-10">
                 <div>
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-dark">
                         <tr>
                             <td>Autor: {{ clanek.autor_jmeno }}</td>
                         </tr>
@@ -40,7 +40,7 @@
                                     </div>
                                     <div class="form-row">
                                         <input type="hidden" name="id_clanek" value="{{ clanek.id_clanek }}">
-                                        <input type="submit" name="add_review" value="Ohodnotit" class="btn btn-primary">
+                                        <input type="submit" name="add_review" value="Ohodnotit" class="btn btn-primary" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} takto ohodnotit?')">
                                     </div>
                                 </form>
                             </td>

@@ -14,7 +14,7 @@ const EXTENSIONS = array(
 // INDEX
 const NAMESPACE_ROOT = "conference";
 
-const DEFAULT_PAGE = "test";
+const DEFAULT_PAGE = "uvod";
 
 //TODO: undo unused elems
 const CONTROLLER_LIST = array(
@@ -27,7 +27,10 @@ const CONTROLLER_LIST = array(
     "moje_clanky" => array("file_name" => CONTR_DIR."MyArticles.class.php", "class_name" => \conference\Controllers\MyArcticles::class),
     "priradit_recenzenta" => array("file_name" => CONTR_DIR."AddReviewer.class.php", "class_name" => \conference\Controllers\AddReviewer::class),
     "recenzovat" => array("file_name" => CONTR_DIR."ReviewArticle.class.php", "class_name" => \conference\Controllers\ReviewArticle::class),
-    "rozhodnout_recenze" => array("file_name" => CONTR_DIR."ReviewReview.class.php", "class_name" => \conference\Controllers\ReviewReview::class)
+    "rozhodnout_recenze" => array("file_name" => CONTR_DIR."ReviewReview.class.php", "class_name" => \conference\Controllers\ReviewReview::class),
+    "clanky" => array("file_name" => CONTR_DIR."AllArticles.class.php", "class_name" => \conference\Controllers\AllArticles::class),
+    "uvod" => array("file_name" => CONTR_DIR."Intro.class.php", "class_name" => \conference\Controllers\Intro::class)
+
 );
 
 // DATABASE

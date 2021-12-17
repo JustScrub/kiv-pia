@@ -1,0 +1,34 @@
+{% extends "Outline.view.twig" %}
+
+{% block BODY %}
+    {% for clanek in clanky %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div>
+                    <table class="table table-dark table-borderless rounded">
+                        <tr>
+                            <td class="text-center text-uppercase font-weight-bold">{{ clanek.nazev }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bolder text-center">{{ clanek.autor_jmeno }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-italic">Klíčová slova: {{ clanek.klicova_slova }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-wrap">{{ clanek.popis }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank" class="btn btn-primary">Zobrazit/Stáhnout</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+
+
+{% endblock %}

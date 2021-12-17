@@ -33,7 +33,7 @@ class AccountManager extends ALoggedController
 
     public function process_action(){
         if(isset($_POST[self::DELETE_BUT_NAME])){
-            $this->pdo->deleteUser($_POST[self::USER_ID_NAME]);
+            $this->pdo->ban_user($_POST[self::USER_ID_NAME]);
         }
         if(isset($_POST[self::EDIT_BUT_NAME])){
             $this->pdo->update_rights($_POST[self::USER_ID_NAME],$_POST[self::RIGHT_NAME]);

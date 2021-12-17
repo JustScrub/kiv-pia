@@ -10,10 +10,10 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
     </head>
 
-    <body>
+    <body class="bg-secondary">
     <div class = "container-md">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin:24px 0;">
-            <a class="navbar-brand" href="javascript:void(0)">Logo</a>
+            <a class="navbar-brand" href="javascript:void(0)"><i class="fas fa-square-root-alt"></i></a>
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navb" aria-expanded="true">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -29,7 +29,7 @@
                 </ul>
 
                 <div class="dropdown dropdown-menu-right">
-                    <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown">Přihlášení</button>
+                    <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown">Přihlášení {{ logged ? "" : "<i class='fas fa-sign-in-alt'></i>" }}</button>
                     <div class="dropdown-menu">
 
                         {# add login form / logged nav here #}
@@ -62,6 +62,10 @@
             <script>
               alert("Nepodařilo se přihlásit: uživatel neexistuje");
             </script>
+        {% elseif ban %}
+            <script>
+                alert("Nepodařilo se přihlásit: uživatel zablokován");
+            </script>
         {% elseif bad_pass %}
             <script>
                alert("Nepodařilo se přihlásit: špatné heslo");
@@ -78,5 +82,27 @@
 
     {% block JS_Script %}
     {% endblock JS_Script %}
+
+{% if not logged %}
+    <script>
+
+        let pass_show = false;
+        let toggle_pass = () => {
+            pass_show = !pass_show;
+            if(pass_show){
+                $("#pass-inp").prop("type","text");
+                $("#pass-but").html('<i id="pass-ico" class="fas fa-eye"></i>');
+            }
+            else{
+                $("#pass-inp").prop("type","password");
+                $("#pass-but").html('<i id="pass-ico" class="fas fa-eye-slash"></i>');
+            }
+        }
+
+        $(document).ready(() =>
+            $("#pass-but").click(toggle_pass)
+        );
+    </script>
+{% endif %}
 
 </html>

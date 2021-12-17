@@ -1,0 +1,62 @@
+{% extends "Outline.view.twig" %}
+
+{% block BODY %}
+    <div class="text-center">
+        <h1>Vítejte na Konferenčních stránkách <b>Forum Mathematicum</b>.</h1>
+        <p>Nam suscipit eros sem, ut vestibulum diam malesuada vel. Cras ut sodales lacus, nec euismod odio.
+            Duis pellentesque eget urna ac dapibus. Aliquam nulla dolor, sollicitudin in nisi et, accumsan facilisis libero.
+            In lobortis sem odio, quis tincidunt risus interdum in. Sed felis tortor, varius in interdum ut, ornare sit amet felis.
+            Praesent quis faucibus mauris, nec ullamcorper est. Maecenas id auctor erat.
+        </p>
+    </div>
+    <div><p>Nové články:</p></div>
+
+    <div id="ar_pres" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner col-10 offset-1">
+
+            {% for clanek in clanky %}
+            <div class="carousel-item">
+                <table class="table table-dark table-borderless rounded">
+                    <tr>
+                        <td class="text-center text-uppercase font-weight-bold">{{ clanek.nazev }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-weight-bolder text-center">{{ clanek.autor_jmeno }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-italic">Klíčová slova: {{ clanek.klicova_slova }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-wrap">{{ clanek.popis }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">
+                            <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank" class="btn btn-primary">Zobrazit/Stáhnout</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            {% endfor %}
+
+        </div>
+        <a class="carousel-control-prev" href="#ar_pres" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#ar_pres" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+
+
+{% endblock %}
+
+{% block CSS %}
+<script>
+    $(document).ready(function(){
+        $(".carousel-inner div:first").addClass("active");
+    });
+</script>
+
+{% endblock %}

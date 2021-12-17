@@ -2,8 +2,19 @@
 {% macro login_form() %}
 
     <form method="POST" id="login_form" autocomplete="off" class="dropdown-item">
-        <input class="form-control mr-sm-2" type="text" placeholder="login nebo e-mail" name="login">
-        <input class="form-control mr-sm-2" type="password" placeholder="heslo" name = "pass">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+            </div>
+            <input class="form-control mr-sm-2" type="text" placeholder="login nebo e-mail" name="login">
+        </div>
+
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="pass-but"><i class="fas fa-eye-slash"></i></span>
+            </div>
+        <input class="form-control mr-sm-2" type="password" placeholder="heslo" id="pass-inp" name = "pass">
+        </div>
         <input type="submit" class="btn btn-success my-2 my-sm-0" value="Login" name="log_but">
     </form>
     <div class="dropdown-item">

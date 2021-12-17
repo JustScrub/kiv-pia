@@ -10,6 +10,7 @@
                 <th>ID</th><th>Login</th><th>Jméno</th><th>Příjmení</th><th>Email</th><th>Právo</th><th>Akce</th>
             </tr>
             {% for u in user_list %}
+            {% if not u.ban %}
                 <tr>
                     <td>{{ u.id_uzivatel }}</td>
                     <td>{{ u.login }}</td>
@@ -25,12 +26,13 @@
                     </td>
                     <td>
                         <form method="post" id="{{ u.id_uzivatel }}">
-                            <input type="submit" name="delete" value="Smazat">
-                            <input type="submit" name="set_role" value="Upravit roli">
+                            <input type="submit" name="delete" value="Zablokovat" onclick="return confirm('Udělit ban uživateli {{ u.jmeno ~" "~ u.prijmeni}}?')">
+                            <input type="submit" name="set_role" value="Upravit roli" onclick="return confirm('Upravit roli uživatele {{ u.jmeno ~" "~ u.prijmeni}}?')">
                             <input type="hidden" name="id_uzivatel" value="{{ u.id_uzivatel }}">
                         </form>
                     </td>
                 </tr>
+            {% endif %}
             {% endfor %}
 
         </table>

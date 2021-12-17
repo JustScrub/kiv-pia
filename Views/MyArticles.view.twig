@@ -14,7 +14,7 @@
         <div class="row">
             <div class="col-lg-10">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-dark">
                         <tr class="{{ macros.schvaleni_stav_class(clanek) }}">
                             <td><a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
                         </tr>
@@ -78,7 +78,7 @@
                     <form method='post' id='${form_id}'>
                         <ul class='dropdown-menu'>
                          <li><input type='submit' name='edit_ok' value='Editovat popis' class='btn btn-primary'></li>
-                         <li><input type='submit' name='ar_delete' value='Smazat příspěvek' class='btn btn-dark'></li>
+                         <li><input type='submit' name='ar_delete' value='Smazat příspěvek' class='btn btn-dark' onclick='return confirm("Opravdu si přejete článek smazat?")'></li>
                          <li><input type='submit' name='edit_cancel' value='Zrušit' class='btn btn-danger'></li>
                         </ul>
                         <input type="hidden" value="${id}" name="ar_id">

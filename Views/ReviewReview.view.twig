@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-lg-10">
                 <div>
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover table-dark">
                         <tr>
                             <td>Autor: {{ clanek.autor_jmeno }}</td>
                         </tr>
@@ -41,9 +41,9 @@
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="ar_id" value="{{ clanek.id_clanek }}">
-                                    <input type="submit" name="schvalit" value="Schválit" class="btn btn-success">
-                                    <input type="submit" name="zamitnout" value="Zamítnout" class="btn btn-danger">
-                                    <input type="submit" name="vratit" value="Vrátit k recenzi" class="btn btn-primary">
+                                    <input type="submit" name="schvalit" value="Schválit" class="btn btn-success" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} schválit?')">
+                                    <input type="submit" name="zamitnout" value="Zamítnout" class="btn btn-danger" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} zamítnout?')">
+                                    <input type="submit" name="vratit" value="Vrátit k recenzi" class="btn btn-primary" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} vrátit k recenzi?')">
                                 </form>
                             </td>
                         </tr>

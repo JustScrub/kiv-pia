@@ -27,6 +27,7 @@ abstract class AController
         $this->view_data = array(
             "title" => $_GET["page"] ?? "",
             "bad_login" => false,
+            "ban" => false,
             "bad_pass" => false,
             "logged" => false,
             "rights" => 5,
@@ -67,6 +68,11 @@ abstract class AController
         if(!$user) {
             $this->view_data["bad_login"] = true;
             return DB_Model::UNKNOWN_LOGIN;
+        }
+
+        if($user["ban"]){
+            $this->view_data["ban"] = true;
+            return DB_Model::BANNED;
         }
 
         if($this->pdo->verify_user_knowing_hash($_POST[self::PASS_INP_NAME],$user["heslo"]) != DB_Model::SUCCESS)

@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `uzivatel` (
     `login` VARCHAR(30) UNIQUE NOT NULL,
     `heslo` VARCHAR(60) NOT NULL,
     `email` VARCHAR(35) UNIQUE NOT NULL,
+    `ban` BOOL NOT NULL DEFAULT false,
     PRIMARY KEY (`id_uzivatel`),
     INDEX `fk_uzivatele_prava_idx` (`id_pravo` ASC),
     CONSTRAINT `fk_uzivatele_prava`
