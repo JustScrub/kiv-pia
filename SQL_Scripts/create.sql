@@ -60,7 +60,7 @@ DROP TABLE IF EXISTS `recenzenti` ;
 CREATE TABLE IF NOT EXISTS `recenzenti` (
     `id_clanek` INT NOT NULL,
     `id_recenzent` INT NOT NULL,
-    `hodnoceni` INT CHECK (`hodnoceni` > 0 AND `hodnoceni` < 10),
+    `hodnoceni` INT CHECK (`hodnoceni` > 0 AND `hodnoceni` <= 10),
     `poznamky` VARCHAR(200),
     CONSTRAINT `pk_recenzenti`
     PRIMARY KEY (`id_clanek`,`id_recenzent`),

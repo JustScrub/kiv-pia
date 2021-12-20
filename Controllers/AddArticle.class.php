@@ -12,6 +12,7 @@ class AddArticle extends ALoggedController
         parent::__construct($twig, $pdo);
         $this->min_rights = 4;
         $this->view_data["bad_file_type"] = false;
+        $this->view_data["form_success"] = false;
     }
 
     public function do_stuff()
@@ -46,7 +47,10 @@ class AddArticle extends ALoggedController
                                 $_POST["klicova_slova"],
                                 $_POST["popis"]
             )
-        ) move_uploaded_file($_FILES["fl"]["tmp_name"],ARTICLES_DIR.$filename);
+        ){
+            move_uploaded_file($_FILES["fl"]["tmp_name"],ARTICLES_DIR.$filename);
+            $this->view_data["form_success"] = true;
+        }
 
 
     }

@@ -33,12 +33,14 @@ class DB_Model
             return null;
 
         } catch (PDOException $ex){
-            echo "Nastala výjimka: ". $ex->getCode() ."<br>"
+            $ex_text = "Nastala výjimka: ". $ex->getCode() ."\t"
                 ."Text: ". $ex->getMessage();
 
             $this->last_err = $ex->getCode();
-            echo ("<br>$stmt->queryString<br>");
-            //var_dump($params);
+
+
+            (new Logger_Model())->log($ex_text)->destruct();
+
             return null;
         }
     }

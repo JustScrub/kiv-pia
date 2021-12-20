@@ -26,7 +26,7 @@ $controller_info = isset($_GET["page"]) && array_key_exists($_GET["page"],CONTRO
 
 
 $loader = new Twig\Loader\FilesystemLoader("Views/");
-$twig = new Twig\Environment($loader, ["debug" => true]);
+$twig = new Twig\Environment($loader, ["debug" => false]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 $db = new \conference\Models\DB_Model;
 

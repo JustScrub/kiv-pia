@@ -4,14 +4,16 @@
 {% block BODY %}
     <div class="row" style="margin-bottom: 10px">
         <div class="col-lg-12">
+            <a href="index.php?page=pridat_clanek" class="btn btn-dark float-lg-right">Přidat článek</a>
             <span class="neposouzeno">neposouzeno</span>
             <span class="zamitnuto">zamítnuto</span>
             <span class="schvaleno">schváleno</span>
-            <a href="index.php?page=pridat_clanek" class="btn btn-dark float-lg-right">Přidat článek</a>
+            <input type="checkbox" id="densh" checked>
+            <label for="densh"> Zobrazit zamítnuté články </label><br>
         </div>
     </div>
     {% for clanek in clanky %}
-        <div class="row">
+        <div class="row {{ clanek.schvalen==2 ? "zamitnuto-mark" : "" }}">
             <div class="col-lg-10">
                 <div class="table-responsive">
                     <table class="table table-bordered table-dark">
@@ -47,6 +49,10 @@
         }
         .neposouzeno{
             background-color: #ADE3FF;
+        }
+
+        button.edit_but {
+            margin-bottom: 20px;
         }
 
     </style>
@@ -87,5 +93,9 @@
                 `
             )
         }
+
+       $("#densh").click(()=>{
+           $(".zamitnuto-mark").toggle("slow");
+       });
     </script>
 {% endblock %}

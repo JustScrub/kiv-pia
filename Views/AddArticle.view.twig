@@ -43,3 +43,11 @@
     </form>
 
 {% endblock %}
+
+{% block JS_Script %}
+{% if form_success %}
+    <script>
+        alert("Článek úspěšně odeslán!")
+    </script>
+{% endif %}
+{% endblock %}
