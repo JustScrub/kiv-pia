@@ -15,6 +15,7 @@ class AdminManagement extends AccountManager
         $this->get_all = "get_all_admins";
         $this->def_view = "AdminManagement.view.twig";
         $this->min_rights = 1;
+        $this->view_data["title"] = "Správa adminů";
     }
 
 }

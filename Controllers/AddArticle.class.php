@@ -13,6 +13,7 @@ class AddArticle extends ALoggedController
         $this->min_rights = 4;
         $this->view_data["bad_file_type"] = false;
         $this->view_data["form_success"] = false;
+        $this->view_data["title"] = "Přidat článek";
     }
 
     public function do_stuff()

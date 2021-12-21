@@ -15,5 +15,6 @@ class UserManagement extends AccountManager
         $this->get_all = "get_all_users";
         $this->def_view = "UserManagement.view.twig";
         $this->min_rights = 2;
+        $this->view_data["title"] = "Správa uživatelů";
     }
 }

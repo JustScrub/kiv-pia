@@ -9,6 +9,7 @@ class AllArticles extends AController
     {
         parent::__construct($twig, $pdo);
         $this->VIEW = "AllArticles.view.twig";
+        $this->view_data["title"] = "Články";
     }
 
     public function do_stuff()

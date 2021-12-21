@@ -12,6 +12,7 @@ class Register extends AController
     {
         parent::__construct($twig, $pdo);
         $this->VIEW = "Register.view.twig";
+        $this->view_data["title"] = "Registrace";
     }
 
     public function do_stuff()

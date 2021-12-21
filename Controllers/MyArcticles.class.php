@@ -15,6 +15,7 @@ class MyArcticles extends ALoggedController
     {
         parent::__construct($twig, $pdo);
         $this->min_rights = 4;
+        $this->view_data["title"] = "Mé články";
     }
 
     public function do_stuff()
@@ -22,6 +23,7 @@ class MyArcticles extends ALoggedController
         $this->process_form();
 
         $this->init();
+
         if(!$this->VIEW){
             $this->VIEW = "MyArticles.view.twig";
             $this->view_data["clanky"] = $this->pdo->articles_by_author($this->session->get(Session_Model::USER_ID));

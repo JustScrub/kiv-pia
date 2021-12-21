@@ -9,6 +9,7 @@ class ReviewReview extends ALoggedController
     {
         parent::__construct($twig, $pdo);
         $this->min_rights = 2;
+        $this->view_data["title"] = "Rozhodnout recenze";
     }
 
 
