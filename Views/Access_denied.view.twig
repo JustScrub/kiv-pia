@@ -1,13 +1,24 @@
 {% extends "Outline.view.twig" %}
 
 {% block BODY %}
+    {% if lang == "cz" %}
+        {% if reason == "login" %}
+        <div>Litujeme, pro zobrazení této stránky se musíte přihlásit.</div>
+        {% elseif reason == "rights" %}
+        <div>Litujeme, pro zobrazení této stránky nemáte příslušná práva</div>
+        {% else %}
+        <div>Litujeme, ale přístup k této stránce byl odepřen.</div>
+        {% endif %}
+    {% endif %}
 
-    {% if reason == "login" %}
-    <div>Litujeme, pro zobrazení této stránky se musíte přihlásit.</div>
-    {% elseif reason == "rights" %}
-    <div>Litujeme, pro zobrazení této stránky nemáte příslušná práva</div>
-    {% else %}
-    <div>Litujeme, ale přístup k této stránce byl odepřen.</div>
+    {% elseif lang == "en" %}
+        {% if reason == "login" %}
+        <div>Sorry, you must log in to view this page.</div>
+        {% elseif reason == "rights" %}
+        <div>Sorry, you do not have the necessary rights to view this page.</div>
+        {% else %}
+        <div>Sorry, access to this page has been denied.</div>
+        {% endif %}
     {% endif %}
 
 

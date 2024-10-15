@@ -4,12 +4,12 @@
 {% block BODY %}
     <div class="row" style="margin-bottom: 10px">
         <div class="col-lg-12">
-            <a href="index.php?page=pridat_clanek" class="btn btn-dark float-lg-right">Přidat článek</a>
-            <span class="neposouzeno">neposouzeno</span>
-            <span class="zamitnuto">zamítnuto</span>
-            <span class="schvaleno">schváleno</span>
+            <a href="index.php?page=pridat_clanek" class="btn btn-dark float-lg-right">{{ lang == "cz"? "Přidat článek" : "Add Article" }}</a>
+            <span class="neposouzeno">{{ lang == "cz"? "neposouzeno" : "not reviewed" }}</span>
+            <span class="zamitnuto">{{ lang == "cz"? "zamítnuto" : "rejected" }}</span>
+            <span class="schvaleno">{{ lang == "cz"? "schváleno" : "approved" }}</span>
             <input type="checkbox" id="densh" checked>
-            <label for="densh"> Zobrazit zamítnuté články </label><br>
+            <label for="densh">{{ lang == "cz"? " Zobrazit zamítnuté články " : " Show rejected articles " }}</label><br>
         </div>
     </div>
     {% for clanek in clanky %}
@@ -22,7 +22,7 @@
                         </tr>
                         {# <tr><td>{{ clanek.nazev_souboru }}</td></tr> #}
                         <tr>
-                            <td>Klíčová slova: {{ clanek.klicova_slova }}</td>
+                            <td>{{ lang == "cz"? "Klíčová slova:" : "Keywords:" }} {{ clanek.klicova_slova }}</td>
                         </tr>
                         <tr>
                             <td id="{{ clanek.id_clanek ~ "-desc" }}">{{ clanek.popis }}</td>
@@ -78,20 +78,20 @@
             form_div.html(
                 `
                 <div class='dropdown float-lg-right'>
-                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Možnosti
+                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{{ lang == "cz"? "Možnosti" : "Options" }}
                         <span class="caret"></span>
                      </button>
                     <form method='post' id='${form_id}'>
                         <ul class='dropdown-menu'>
-                         <li><input type='submit' name='edit_ok' value='Editovat popis' class='btn btn-primary'></li>
-                         <li><input type='submit' name='ar_delete' value='Smazat příspěvek' class='btn btn-dark' onclick='return confirm("Opravdu si přejete článek smazat?")'></li>
-                         <li><input type='submit' name='edit_cancel' value='Zrušit' class='btn btn-danger'></li>
+                         <li><input type='submit' name='edit_ok' value='{{ lang == "cz"? "Editovat popis" : "Edit description" }}' class='btn btn-primary'></li>
+                         <li><input type='submit' name='ar_delete' value='{{ lang == "cz"? "Smazat příspěvek" : "Delete article" }}' class='btn btn-dark' onclick='return confirm("{{ lang == "cz"? "Opravdu si přejete článek smazat?" : "Are you sure you want to delete the article?" }}")'></li>
+                         <li><input type='submit' name='edit_cancel' value='{{ lang == "cz"? "Zrušit" : "Cancel" }}' class='btn btn-danger'></li>
                         </ul>
                         <input type="hidden" value="${id}" name="ar_id">
                     </form>
                 </div>
                 `
-            )
+            );
         }
 
        $("#densh").click(()=>{

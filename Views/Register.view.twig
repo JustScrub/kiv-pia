@@ -25,52 +25,51 @@
         {% endif %}
     <form class="form-horizontal" method="POST">
 
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="fname">{{ lang == "cz"? "Jméno:" : "First Name:" }}</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="fname" placeholder="{{ lang == "cz"? "Zadejte své jméno" : "Enter your first name" }}" name="fname" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="sname">{{ lang == "cz"? "Příjmení:" : "Last Name:" }}</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="sname" placeholder="{{ lang == "cz"? "Zadejte své příjmení" : "Enter your last name" }}" name="sname" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="login">{{ lang == "cz"? "Login:" : "Login:" }}</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="login" placeholder="{{ lang == "cz"? "Zadejte přihlašovací jméno" : "Enter your login" }}" name="login" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">{{ lang == "cz"? "Email:" : "Email:" }}</label>
+        <div class="col-sm-10">
+            <input type="email" class="form-control" id="email" placeholder="{{ lang == "cz"? "Zadejte svůj email" : "Enter your email" }}" name="email" required>
+        </div>
+    </div>
+
         <div class="form-group">
-            <label class="control-label col-sm-2" for="fname">Jméno:</label>
+            <label class="control-label col-sm-2" for="pwd">{{ lang == "cz"? "Heslo:" : "Password:" }}</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="fname" placeholder="Zadejte své jméno" name="fname" required>
+                <input type="password" class="form-control" id="pwd" placeholder="{{ lang == "cz"? "Zadejte heslo" : "Enter password" }}" name="pwd" required>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="control-label col-sm-2" for="sname">Příjmení:</label>
+            <label class="control-label col-sm-2" for="pwd2">{{ lang == "cz"? "Heslo znovu:" : "Password again:" }}</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="sname" placeholder="zadejte své příjmení" name="sname" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="control-label col-sm-2" for="login">Login:</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" id="login" placeholder="Zadejte přihlašovací jméno" name="login" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="control-label col-sm-2" for="email">Email:</label>
-            <div class="col-sm-10">
-                <input type="email" class="form-control" id="email" placeholder="Zadejte svůj email" name="email" required>
-            </div>
-        </div>
-
-
-        <div class="form-group">
-            <label class="control-label col-sm-2" for="pwd">Heslo:</label>
-            <div class="col-sm-10">
-                <input type="password" class="form-control" id="pwd" placeholder="Zadejte heslo" name="pwd" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="control-label col-sm-2" for="pwd2">Heslo znovu:</label>
-            <div class="col-sm-10">
-                <input type="password" class="form-control" id="pwd2" placeholder="Pro kontrolu zadejte heslo znovu" name="pwd2">
+                <input type="password" class="form-control" id="pwd2" placeholder="{{ lang == "cz"? "Pro kontrolu zadejte heslo znovu" : "Re-enter password for verification" }}" name="pwd2">
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
-                <input type="submit" class="btn btn-primary" value="Odeslat" name="reg_but" id="reg_but" disabled>
+                <input type="submit" class="btn btn-primary" value="{{ lang == "cz"? "Odeslat" : "Submit" }}" name="reg_but" id="reg_but" disabled>
             </div>
         </div>
     </form>
@@ -78,9 +77,6 @@
     {% else %}
 
     <div>
-        <p>Gratulujeme, registrace proběhla úspěšně!</p>
-        <p><a href="index.php?page=uvod">Vrátit se na úvod</a></p>
+        <p>{{ lang == "cz"? "Gratulujeme, registrace proběhla úspěšně!" : "Congratulations, registration was successful!" }}</p>
+        <p><a href="index.php?page=uvod">{{ lang == "cz"? "Vrátit se na úvod" : "Return to homepage" }}</a></p>
     </div>
-
-    {% endif %}
-{% endblock %}

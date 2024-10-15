@@ -7,15 +7,15 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-dark">
                         <tr>
-                            <td>Autor: {{ clanek.autor_jmeno }}</td>
+                            <td>{{ lang == "cz"? "Autor:" : "Author:" }} {{ clanek.autor_jmeno }}</td>
                         </tr>
                         <tr>
-                            <td>Název: <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
+                            <td>{{ lang == "cz"? "Název:" : "Title:" }} <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
                         </tr>
 
                         {% for recenzent in clanek.recenzenti %}
                             <tr>
-                                <td>Recenzent: {{ recenzent.jmeno ~ " " ~ recenzent.prijmeni }}</td>
+                                <td>{{ lang == "cz"? "Recenzent:" : "Reviewer:" }} {{ recenzent.jmeno ~ " " ~ recenzent.prijmeni }}</td>
                             </tr>
                         {% endfor %}
                         <tr>
@@ -29,8 +29,8 @@
                                         {% endfor %}
                                     </select>
                                     <input type="hidden" name="id_clanek" value="{{ clanek.id_clanek }}">
-                                    <input type="submit" name="add_reviewer" value="Přiřadit" class="btn btn-primary">
-                                    <input type="submit" name="decl_article" value="Zamítnout příspěvek" class="btn btn-danger float-lg-right" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} zamítnout?')">
+                                    <input type="submit" name="add_reviewer" value="{{ lang == "cz"? "Přiřadit" : "Assign" }}" class="btn btn-primary">
+                                    <input type="submit" name="decl_article" value="{{ lang == "cz"? "Zamítnout příspěvek" : "Reject article" }}" class="btn btn-danger float-lg-right" onclick="return confirm('{{ lang == "cz"? "Opravdu si přejete článek " ~ clanek.nazev ~ " zamítnout?" : "Are you sure you want to reject the article " ~ clanek.nazev ~ "?" }}')">
                                 </form>
                             </td>
                         </tr>
@@ -45,7 +45,7 @@
 {% block JS_Script %}
 {% if alert %}
 <script>
-    alert("Nelze přiřadit stejného recenzenta.");
+    alert("{{ lang == "cz"? "Nelze přiřadit stejného recenzenta." : "Cannot assign the same reviewer." }}");
 </script>
 {% endif %}
 {% endblock %}

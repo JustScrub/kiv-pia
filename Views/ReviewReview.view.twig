@@ -7,13 +7,13 @@
                 <div>
                     <table class="table table-bordered table-hover table-dark">
                         <tr>
-                            <td>Autor: {{ clanek.autor_jmeno }}</td>
+                            <td>{{ lang == "cz"? "Autor:" : "Author:" }} {{ clanek.autor_jmeno }}</td>
                         </tr>
                         <tr>
-                            <td>Název: <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
+                            <td>{{ lang == "cz"? "Název:" : "Title:" }} <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
                         </tr>
                         <tr>
-                            <td>Klíčová slova: {{ clanek.klicova_slova }}</td>
+                            <td>{{ lang == "cz"? "Klíčová slova:" : "Keywords:" }} {{ clanek.klicova_slova }}</td>
                         </tr>
                         <tr>
                             <td>{{ clanek.popis }}</td>
@@ -24,7 +24,7 @@
                                 <td>
                                     <div class="row">
                                         <div class="col-10">
-                                            Recenzent: {{ recenzent.jmeno ~ " " ~ recenzent.prijmeni }}
+                                            {{ lang == "cz"? "Recenzent:" : "Reviewer:" }} {{ recenzent.jmeno ~ " " ~ recenzent.prijmeni }}
                                         </div>
                                         <div class="col-2 text-right">
                                             {{ recenzent.hodnoceni }}/10
@@ -33,7 +33,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td style="padding-left: 30px">Poznámky: {{ recenzent.poznamky }}</td>
+                                <td style="padding-left: 30px">{{ lang == "cz"? "Poznámky:" : "Notes:" }} {{ recenzent.poznamky }}</td>
                             </tr>
                         {% endfor %}
 
@@ -41,9 +41,9 @@
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="ar_id" value="{{ clanek.id_clanek }}">
-                                    <input type="submit" name="schvalit" value="Schválit" class="btn btn-success" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} schválit?')">
-                                    <input type="submit" name="zamitnout" value="Zamítnout" class="btn btn-danger" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} zamítnout?')">
-                                    <input type="submit" name="vratit" value="Vrátit k recenzi" class="btn btn-primary" onclick="return confirm('Opravdu si přejete článek {{ clanek.nazev }} vrátit k recenzi?')">
+                                    <input type="submit" name="schvalit" value="{{ lang == "cz"? "Schválit" : "Approve" }}" class="btn btn-success" onclick="return confirm('{{ lang == "cz"? "Opravdu si přejete článek " ~ clanek.nazev ~ " schválit?" : "Are you sure you want to approve the article " ~ clanek.nazev ~ "?" }}')">
+                                    <input type="submit" name="zamitnout" value="{{ lang == "cz"? "Zamítnout" : "Reject" }}" class="btn btn-danger" onclick="return confirm('{{ lang == "cz"? "Opravdu si přejete článek " ~ clanek.nazev ~ " zamítnout?" : "Are you sure you want to reject the article " ~ clanek.nazev ~ "?" }}')">
+                                    <input type="submit" name="vratit" value="{{ lang == "cz"? "Vrátit k recenzi" : "Return for review" }}" class="btn btn-primary" onclick="return confirm('{{ lang == "cz"? "Opravdu si přejete článek " ~ clanek.nazev ~ " vrátit k recenzi?" : "Are you sure you want to return the article " ~ clanek.nazev ~ " for review?" }}')">
                                 </form>
                             </td>
                         </tr>

@@ -13,14 +13,14 @@
                             <td class="font-weight-bolder text-center">{{ clanek.autor_jmeno }}</td>
                         </tr>
                         <tr>
-                            <td class="font-italic">Klíčová slova: {{ clanek.klicova_slova }}</td>
+                            <td class="font-italic">{{ lang == "cz"? "Klíčová slova:" : "Keywords:" }} {{ clanek.klicova_slova }}</td>
                         </tr>
                         <tr>
                             <td class="text-wrap">{{ clanek.popis }}</td>
                         </tr>
                         <tr>
                             <td class="text-center">
-                                <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank" class="btn btn-primary">Zobrazit/Stáhnout</a>
+                                <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank" class="btn btn-primary">{{ lang == "cz"? "Zobrazit/Stáhnout" : "View/Download" }}</a>
                             </td>
                         </tr>
                     </table>
@@ -28,7 +28,4 @@
             </div>
         </div>
     {% endfor %}
-
-
-
 {% endblock %}

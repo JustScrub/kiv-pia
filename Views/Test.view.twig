@@ -2,6 +2,6 @@
 
 {% block BODY %}
 
-    <h1 class="bg-danger text-center">HELLO, {{ user }}</h1>
+    <h1 class="bg-danger text-center">{{ lang == "cz"? "AHOJ, " : "HELLO, " }}{{ user }}</h1>
 
 {% endblock %}

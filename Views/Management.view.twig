@@ -2,12 +2,12 @@
 
 {% block BODY %}
 
-    <h1 class="bg-danger text-center">SPRÁVA {{ ofWhatManagement }}</h1>
+    <h1 class="bg-danger text-center">{{ lang == "cz"? "SPRÁVA" : "MANAGEMENT" }} {{ ofWhatManagement }}</h1>
 
     <div class="table-responsive">
         <table class="table table-dark" id="us_list">
             <tr>
-                <th>ID</th><th>Login</th><th>Jméno</th><th>Příjmení</th><th>Email</th><th>Právo</th><th>Akce</th>
+                <th>ID</th><th>{{ lang == "cz"? "Login" : "Login" }}</th><th>{{ lang == "cz"? "Jméno" : "First Name" }}</th><th>{{ lang == "cz"? "Příjmení" : "Last Name" }}</th><th>{{ lang == "cz"? "Email" : "Email" }}</th><th>{{ lang == "cz"? "Právo" : "Role" }}</th><th>{{ lang == "cz"? "Akce" : "Actions" }}</th>
             </tr>
             {% for u in user_list %}
             {% if not u.ban %}
@@ -26,18 +26,16 @@
                     </td>
                     <td>
                         <form method="post" id="{{ u.id_uzivatel }}">
-                            <input type="submit" name="delete" value="Zablokovat" onclick="return confirm('Udělit ban uživateli {{ u.jmeno ~" "~ u.prijmeni}}?')">
-                            <input type="submit" name="set_role" value="Upravit roli" onclick="return confirm('Upravit roli uživatele {{ u.jmeno ~" "~ u.prijmeni}}?')">
+                            <input type="submit" name="delete" value="{{ lang == "cz"? "Zablokovat" : "Block" }}" onclick="return confirm('{{ lang == "cz"? "Udělit ban uživateli" : "Block user" }} {{ u.jmeno ~" "~ u.prijmeni}}?')">
+                            <input type="submit" name="set_role" value="{{ lang == "cz"? "Upravit roli" : "Edit Role" }}" onclick="return confirm('{{ lang == "cz"? "Upravit roli uživatele" : "Edit role of user" }} {{ u.jmeno ~" "~ u.prijmeni}}?')">
                             <input type="hidden" name="id_uzivatel" value="{{ u.id_uzivatel }}">
                         </form>
                     </td>
                 </tr>
             {% endif %}
             {% endfor %}
-
         </table>
     </div>
-
 
 {% endblock %}
 

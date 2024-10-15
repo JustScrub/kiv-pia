@@ -8,7 +8,6 @@ spl_autoload_register(
         $file_name = str_replace(NAMESPACE_ROOT,ROOT_DIR,$class_name);
         $file_name = str_replace("\\",DIRECTORY_SEPARATOR,$file_name);
 
-
         foreach(EXTENSIONS as $ext){
             if(file_exists($file_name.$ext)){
                 $file_name .= $ext;

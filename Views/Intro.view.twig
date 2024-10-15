@@ -2,14 +2,14 @@
 
 {% block BODY %}
     <div class="text-center">
-        <h1>Vítejte na Konferenčních stránkách <b>Forum Mathematicum</b>.</h1>
+        <h1 {{ lang == "cz"? "Vítejte na Konferenčních stránkách <b>Forum Mathematicum</b>." : "Welcome to the Conference site <b>Forum Mathematicum</b>." }}</h1>
         <p>Nam suscipit eros sem, ut vestibulum diam malesuada vel. Cras ut sodales lacus, nec euismod odio.
             Duis pellentesque eget urna ac dapibus. Aliquam nulla dolor, sollicitudin in nisi et, accumsan facilisis libero.
             In lobortis sem odio, quis tincidunt risus interdum in. Sed felis tortor, varius in interdum ut, ornare sit amet felis.
             Praesent quis faucibus mauris, nec ullamcorper est. Maecenas id auctor erat.
         </p>
     </div>
-    <div><p>Nové články:</p></div>
+    <div><p>{{ lang == "cz"? "Nové články:" : "New Articles:" }}</p></div>
 
     <div id="ar_pres" class="carousel slide" data-ride="carousel">
         <div class="carousel-inner col-10 offset-1">
@@ -24,14 +24,14 @@
                         <td class="font-weight-bolder text-center">{{ clanek.autor_jmeno }}</td>
                     </tr>
                     <tr>
-                        <td class="font-italic">Klíčová slova: {{ clanek.klicova_slova }}</td>
+                        <td class="font-italic">{{ lang == "cz"? "Klíčová slova:" : "Keywords:" }} {{ clanek.klicova_slova }}</td>
                     </tr>
                     <tr>
                         <td class="text-wrap">{{ clanek.popis }}</td>
                     </tr>
                     <tr>
                         <td class="text-center">
-                            <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank" class="btn btn-primary">Zobrazit/Stáhnout</a>
+                            <a href="Articles/{{ clanek.nazev_souboru }}" target="_blank" class="btn btn-primary">{{ lang == "cz"? "Zobrazit/Stáhnout" : "View/Download" }}</a>
                         </td>
                     </tr>
                 </table>

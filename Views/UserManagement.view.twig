@@ -2,10 +2,10 @@
 
 {% block prava_select %}
     {% if rights == 1 %}
-<option value="1">SuperAdmin</option>
-<option value="2">Admin</option>
+        <option value="1" {{ u.id_pravo == 1? "selected": ""}}>{{ lang == "cz"? "SuperAdmin" : "SuperAdmin" }}</option>
+        <option value="2" {{ u.id_pravo == 2? "selected": ""}}>{{ lang == "cz"? "Admin" : "Admin" }}</option>
     {% endif %}
-<option value="3" {{ u.id_pravo == 3? "selected": ""}}>Recenzent</option>
-<option value="4" {{ u.id_pravo == 4? "selected": ""}}>Autor</option>
+    <option value="3" {{ u.id_pravo == 3? "selected": ""}}>{{ lang == "cz"? "Recenzent" : "Reviewer" }}</option>
+    <option value="4" {{ u.id_pravo == 4? "selected": ""}}>{{ lang == "cz"? "Autor" : "Author" }}</option>
 {% endblock %}
 

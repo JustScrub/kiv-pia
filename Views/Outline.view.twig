@@ -21,15 +21,15 @@
             <div class="navbar-collapse collapse show" id="navb" style="">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=uvod">Úvod</a>
+                        <a class="nav-link" href="index.php?page=uvod">{{ lang == "cz"? "Úvod" : "Home" }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=clanky">Články</a>
+                        <a class="nav-link" href="index.php?page=clanky">{{ lang == "cz"? "Články" : "Articles" }}</a>
                     </li>
                 </ul>
 
                 <div class="dropdown dropdown-menu-right">
-                    <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown">Přihlášení {{ logged ? "" : "<i class='fas fa-sign-in-alt'></i>" }}</button>
+                    <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown">{{ lang == "cz"? "Přihlášení" : "Login" }} {{ logged ? "" : "<i class='fas fa-sign-in-alt'></i>" }}</button>
                     <div class="dropdown-menu">
 
                         {# add login form / logged nav here #}
@@ -57,21 +57,22 @@
     <footer>
     </footer>
 
-    {% block LOGIN_ALERTS%}
+    {% block LOGIN_ALERTS %}
         {% if bad_login %}
             <script>
-              alert("Nepodařilo se přihlásit: uživatel neexistuje");
+              alert("{{ lang == "cz"? "Nepodařilo se přihlásit: uživatel neexistuje" : "Login failed: user does not exist" }}");
             </script>
         {% elseif ban %}
             <script>
-                alert("Nepodařilo se přihlásit: uživatel zablokován");
+                alert("{{ lang == "cz"? "Nepodařilo se přihlásit: uživatel zablokován" : "Login failed: user is blocked" }}");
             </script>
         {% elseif bad_pass %}
             <script>
-               alert("Nepodařilo se přihlásit: špatné heslo");
+               alert("{{ lang == "cz"? "Nepodařilo se přihlásit: špatné heslo" : "Login failed: incorrect password" }}");
             </script>
         {% endif %}
     {% endblock %}
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
