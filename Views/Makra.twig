@@ -1,5 +1,5 @@
 {# login form #}
-{% macro login_form() %}
+{% macro login_form(lang) %}
 
     <form method="POST" id="login_form" autocomplete="off" class="dropdown-item">
         <div class="input-group">
@@ -24,7 +24,7 @@
 {% endmacro %}
 
 {# user already logged in #}
-{% macro logged_form(name, rights) %}
+{% macro logged_form(name, rights, lang) %}
 
     {{ lang == "cz"? "Vítejte," : "Welcome," }} {{ name }}.
             <a class="dropdown-item" href="index.php?page=moje_clanky">{{ lang == "cz"? "Mé články" : "My Articles" }}</a>
@@ -44,6 +44,6 @@
 {% endmacro %}
 
 
-{% macro schvaleni_stav_class(clanek) %}
+{% macro schvaleni_stav_class(clanek, lang) %}
 {% if clanek.schvalen==0 %}{{ lang == "cz"? "neposouzeno" : "not reviewed" }}{% elseif clanek.schvalen==1 %}{{ lang == "cz"? "schvaleno" : "approved" }}{% else %}{{ lang == "cz"? "zamitnuto" : "rejected" }}{% endif %}
 {% endmacro %}

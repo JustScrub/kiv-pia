@@ -35,7 +35,7 @@ const CONTROLLER_LIST = array(
 
 // DATABASE
 const DB_SERVER = "localhost";
-const DB_NAME = "kiv_web";
+const DB_NAME = "kiv_pia";
 const DB_LOGIN = "root";
 const DB_PASS = "rootroot";
 

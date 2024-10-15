@@ -17,7 +17,7 @@
             <div class="col-lg-10">
                 <div class="table-responsive">
                     <table class="table table-bordered table-dark">
-                        <tr class="{{ macros.schvaleni_stav_class(clanek) }}">
+                        <tr class="{{ macros.schvaleni_stav_class(clanek,lang) }}">
                             <td><a href="Articles/{{ clanek.nazev_souboru }}" target="_blank">{{ clanek.nazev }}</a></td>
                         </tr>
                         {# <tr><td>{{ clanek.nazev_souboru }}</td></tr> #}

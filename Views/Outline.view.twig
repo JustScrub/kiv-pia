@@ -34,9 +34,9 @@
 
                         {# add login form / logged nav here #}
                         {% if logged %}
-                        {{ macros.logged_form(user,rights) }}
+                        {{ macros.logged_form(user,rights,lang) }}
                         {% else %}
-                        {{ macros.login_form() }}
+                        {{ macros.login_form(lang) }}
                         {% endif %}
 
                     </div>
