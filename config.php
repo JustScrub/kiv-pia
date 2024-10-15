@@ -1,7 +1,7 @@
 <?php
 
 // FILES
-const ROOT_DIR = "C:/xampp/htdocs/SEM";
+const ROOT_DIR = __DIR__;
 const CONTR_DIR = ROOT_DIR."/Controllers/";
 const MODEL_DIR = ROOT_DIR."/Models/";
 const VIEW_DIR = ROOT_DIR."/Views/";
