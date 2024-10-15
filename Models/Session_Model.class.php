@@ -7,6 +7,7 @@ class Session_Model
     const USER_ID = "id_uzivatel";
     const USER_NAME = "jmeno_a_prijmeni";
     const USER_RIGHTS = "pravo";
+    const USER_LANG = "lang";
 
     public function __construct()
     {
@@ -38,6 +39,36 @@ class Session_Model
         unset($_SESSION[$key]);
     }
 
+    /**
+     * Get browser language, given an array of avalaible languages.
+     * https://gist.github.com/joke2k/c8118e8179172f2f075f0f024ed379d2
+     * 
+     * @param  [array]   $availableLanguages  Avalaible languages for the site
+     * @param  [string]  $default             Default language for the site
+     * @return [string]                       Language code/prefix
+     */
+    private function get_browser_language( $default = 'en' ) {
+        if ( isset( $_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ] ) ) {
+
+            $langs = explode( ',', $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
+            $available = array("en" => "en","cs" => "cz", "cz" => "cz");
+
+            foreach ( $langs as $lang ){
+                $lang = substr( $lang, 0, 2 );
+                if( array_key_exists($lang,$available) ){ {
+                    return $available[$lang];
+                    }
+                }
+            }
+        }
+        return $default;
+    }
+
+    public function set_lang($lang = null){
+        $lang = $lang ?? $this->get_browser_language();
+        $this->set(self::USER_LANG,$lang);
+    }
+
     //user_data: data as passed by DB_Model from get_user_data
     public function login($user_data){
         if(!$user_data) return;
@@ -48,7 +79,8 @@ class Session_Model
 
     public function logout(){
         foreach( $_SESSION as $key => $_){
-            $this->remove($key);
+            if ($key != self::USER_LANG)
+                $this->remove($key);
         }
     }
 

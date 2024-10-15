@@ -15,6 +15,9 @@ abstract class AController
 
     const LOGOUT_BUTTON_NAME = "logout_but";
 
+    //TODO: TEST language switch
+    const LANG_SWITCH_NAME = "lang_switch";
+
     /**
      * @param $twig Environment
      * @param $pdo DB_Model
@@ -31,7 +34,8 @@ abstract class AController
             "bad_pass" => false,
             "logged" => false,
             "rights" => 5,
-            "user" => ""
+            "user" => "",
+            "lang" => "en"
         );
     }
     public abstract function do_stuff();
@@ -40,6 +44,7 @@ abstract class AController
     {
         $this->logout_process();
         $this->login_process();
+        $this->set_lang();
         $this->set_session_data();
     }
 
@@ -51,6 +56,14 @@ abstract class AController
         else{
             $this->view_data["user"] = "";
             $this->view_data["rights"] = 5;
+        }
+        $this->view_data["lang"] = $this->session->get(Session_Model::USER_LANG) ?? "en";
+    }
+
+    public function set_lang(){
+        if(isset($_POST[self::LANG_SWITCH_NAME])){
+            $lang = strtolower($_POST[self::LANG_SWITCH_NAME]);
+            $this->session->set(Session_Model::USER_LANG,$lang);
         }
     }
 
