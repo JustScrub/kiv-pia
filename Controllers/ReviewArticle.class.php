@@ -12,6 +12,7 @@ class ReviewArticle extends ALoggedController
         parent::__construct($twig, $pdo);
         $this->min_rights = 3;
         $this->view_data["title"] = "Recenzovat";
+        $this->titles = array("cz" => "Recenzovat", "en" => "Review");
     }
 
     public function do_stuff()

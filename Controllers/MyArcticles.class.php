@@ -15,7 +15,7 @@ class MyArcticles extends ALoggedController
     {
         parent::__construct($twig, $pdo);
         $this->min_rights = 4;
-        $this->view_data["title"] = "Mé články";
+        $this->titles = array("cz" => "Mé články", "en" => "My articles");
     }
 
     public function do_stuff()

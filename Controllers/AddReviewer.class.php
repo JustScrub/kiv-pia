@@ -9,7 +9,7 @@ class AddReviewer extends ALoggedController
     {
         parent::__construct($twig, $pdo);
         $this->min_rights=2;
-        $this->view_data["title"] = "Přidat recenzenta";
+        $this->titles = array("cz" => "Přidat recenzenta", "en" => "Add reviewer");
     }
 
     public function do_stuff()

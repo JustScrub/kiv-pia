@@ -14,12 +14,15 @@ class AccountManager extends ALoggedController
         parent::__construct($twig, $pdo);
         $this->get_all = "";
         $this->def_view = "";
+        $this->ofWhatManagement = array("cz" => "", "en" => "");
     }
 
     public function do_stuff()
     {
         $this->init();
         $this->process_action();
+
+        $this->view_data["ofWhatManagement"] = $this->ofWhatManagement[$this->view_data["lang"]];
 
         $func = $this->get_all;
         if(!$this->VIEW){

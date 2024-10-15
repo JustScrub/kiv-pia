@@ -9,7 +9,7 @@ class AllArticles extends AController
     {
         parent::__construct($twig, $pdo);
         $this->VIEW = "AllArticles.view.twig";
-        $this->view_data["title"] = "Články";
+        $this->titles = array("cz" => "Články", "en" => "Articles");
     }
 
     public function do_stuff()

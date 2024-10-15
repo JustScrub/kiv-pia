@@ -8,7 +8,7 @@ class Intro extends AController
     {
         parent::__construct($twig, $pdo);
         $this->VIEW = "Intro.view.twig";
-        $this->view_data["title"] = "Úvod";
+        $this->titles = array("cz" => "Úvod", "en" => "Home");
     }
 
     public function do_stuff()

@@ -27,8 +27,9 @@ abstract class AController
         $this->pdo = $pdo;
         $this->session = new Session_Model;
         $this->VIEW = null;
+        $title = $_GET["page"] ?? "";
         $this->view_data = array(
-            "title" => $_GET["page"] ?? "",
+            "title" => $title,
             "bad_login" => false,
             "ban" => false,
             "bad_pass" => false,
@@ -37,6 +38,7 @@ abstract class AController
             "user" => "",
             "lang" => "en"
         );
+        $this->titles = array("cz" => $title,"en" => $title);
     }
     public abstract function do_stuff();
 
@@ -45,6 +47,7 @@ abstract class AController
         $this->logout_process();
         $this->login_process();
         $this->set_lang();
+        $this->view_data["title"] = $this->titles[$this->view_data["lang"]];
         $this->set_session_data();
     }
 
