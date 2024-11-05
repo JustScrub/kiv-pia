@@ -43,7 +43,9 @@ const TB_USERS = "uzivatel";
 const TB_RIGHTS = "pravo";
 const TB_ARTICLE = "clanek";
 const TB_REVIEW = "recenzenti";
+const TB_API_KEYS = "api_klice"; // key, user_id, expiration -- one key per user
 const VW_NEED_REVIEW = "nedostatek_recenzentu";
 const VW_AUTHORS_ARTICLES = "autori_clanky";
+const VW_API_RIGHTS = "api_prava"; // key, rights, expiration
 
 

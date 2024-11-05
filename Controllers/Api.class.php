@@ -1,10 +1,8 @@
 <?php
 
 namespace conference\Controllers;
-
-require_once "Models/Session_Model.class.php";
-use conference\Models\Session_Model;
 use Attribute;
+use OpenApi\Attributes as OAT;
 
 #[Attribute]
 class ApiMeta
@@ -16,106 +14,160 @@ class ApiMeta
     }
 }
 
+#[OAT\Info(title: "Conference API", version: "0.1")]
+#[OAT\Schema(
+    schema: "Error",
+    type: "object",
+    properties: [
+        new OAT\Property(property: "error", type: "string"),
+        new OAT\Property(property: "status", type: "integer"),
+        new OAT\Property(property: "message", type: "string"),
+        new OAT\Property(property: "redirect", type: "string")
+    ],
+    required: ["error","status","message"]
+)]
 class Api
 {
     public function __construct($pdo){
         $this->pdo = $pdo;
-        $this->session = new Session_Model;
     }
 
     public function execute_service($service){
         $resp = null;
-        if(!$this->session->is_logged()){
-            $resp = array(
-                "error" => "Unauthorized", "status" => 401,
-                "message" => "You must be logged in to use the API", 
-                "service" => $service,
-                "redirect" => "api.php?service=login"
-            );
-        }
+        do {
+            if($service == "get_auth_key"){
+                break;
+            }
 
-        if(!method_exists($this,$service)){
-            $resp = array(
-                "error" => "Not Found", "status" => 404,
-                "message" => "Service not found", 
-                "service" => $service
-            );
-        }
+            if(!method_exists($this,$service)){
+                $resp = array(
+                    "error" => "Not Found", "status" => 404,
+                    "message" => "Service not found", 
+                );
+                break;
+            }
 
-        $reflection = new \ReflectionMethod($this,$service);
-        $attributes = $reflection->getAttributes(ApiMeta::class);
+            $reflection = new \ReflectionMethod($this,$service);
+            $attributes = $reflection->getAttributes(ApiMeta::class);
 
-        if(count($attributes) == 0){ // helper methods, not API endpoints
-            $resp = array(
-                "error" => "Forbidden", "status" => 403,
-                "message" => "Service not available", 
-                "service" => $service
-            );
-        }
+            if(count($attributes) == 0){ // helper methods, not API endpoints
+                $resp = array(
+                    "error" => "Forbidden", "status" => 403,
+                    "message" => "Service not available", 
+                );
+                break;
+            }
 
-        $rights = $attributes[0]->newInstance()->rights;
-        if($this->session->get(Session_Model::USER_RIGHTS) < $rights){
-            $resp = array(
-                "error" => "Forbidden", "status" => 403,
-                "message" => "Insufficient rights", 
-                "service" => $service
-            );
+            $rights = $attributes[0]->newInstance()->rights;
+            $key = $_SERVER["HTTP_AUTHORIZATION"];
+            if(!$this->pdo->verify_key($key,$rights)){
+                $resp = array(
+                    "error" => "Unauthorized", "status" => 401,
+                    "message" => "Invalid API key. Authorize by providing a valid key in the Authorization header",
+                    "redirect" => "/api.php?service=get_auth_key",
+                );
+                break;
+            }
+        } while(false);
+
+        $body = $this->params_check($service);
+        if(isset($body["error"])){
+            $resp = $body;
         }
 
         if(is_null($resp)){ // no error up to this point
-            $resp = $this->$service();
+            $resp = $this->$service($body);
         }
 
         if(isset($resp["error"])){
             header("HTTP/1.1 $resp[status] $resp[error]");
         }
+        header("Content-Type: application/json");
         echo json_encode($resp);
     }
 
-    // TODO: come up with a better way to login via API
-    //  - some kind of session ID or API key
+    private function params_check($service){
+        $reflection = new \ReflectionMethod($this,$service);
+        $params = $reflection->getAttributes(OAT\Parameter::class);
+        foreach($params as $param){
+            $p = $param->newInstance();
+            if(!isset($_GET[$p->name]) && $p->required){
+                return array(
+                    "error" => "Bad Request", "status" => 400,
+                    "message" => "Missing query parameter $p->name"
+                );
+            }
+        }
+
+        $params = $reflection->getAttributes(OAT\RequestBody::class);
+        if(count($params) == 0){ return array(); };
+        $params = $params[0]->newInstance()->content[0]->schema;
+        $body = json_decode(file_get_contents("php://input"), true) ?? array();
+
+        foreach($params->properties as $p){
+            if(in_array($p->property,$params->required) && !array_key_exists($p->property,$body)){
+                return array(
+                    "error" => "Bad Request", "status" => 400,
+                    "message" => "Missing body parameter $p->property"
+                );
+            }
+            if(!array_key_exists($p->property,$body)){ 
+                $body[$p->property] = $p->default;
+             }
+        }
+        return $body;
+    }
 
     #[ApiMeta(1)]
-    public function login(){
-        /*$username = $_GET["username"];
-        $password = $_GET["password"];
-        $resp = null;
+    #[OAT\Post(path: "/api.php?service=get_auth_key", summary: "Get API key")]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        schema: "AuthKey",
+                        properties: [
+                            new OAT\Property(property: "key", type: "string")
+                        ],
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\RequestBody(
+           content: new OAT\MediaType(
+                mediaType: "application/json",
+                schema: new OAT\Schema(
+                    schema: "AuthRequest",
+                    properties: [
+                        new OAT\Property(property: "login", type: "string"),
+                        new OAT\Property(property: "pass", type: "string"),
+                        new OAT\Property(property: "expiration", type: "integer", default: 3600)
+                    ],
+                    required: ["login","pass"]
+           ))
+    )]
+    private function get_auth_key($body){
+        $login = $body["login"];
+        $pass = $body["pass"];
+        $expiration = $body["expiration"];
 
-        $user = $this->pdo->get_user_data($username);
-        if(!$user) {
-            $resp = array(
-                "error" => "Unauthorized", "status" => 401,
-                "message" => "User not found", 
-                "service" => "login"
-            );
+        $key = $this->pdo->new_auth_key($login,$pass,$expiration);
+        switch($key){
+            case Models\DB_Model::UNKNOWN_LOGIN:
+            case Models\DB_Model::WRONG_PASSWORD:
+                return array(
+                    "error" => "Unauthorized", "status" => 401,
+                    "message" => "Invalid login or password"
+                );
+            case Models\DB_Model::BANNED:
+                return array(
+                    "error" => "Forbidden", "status" => 403,
+                    "message" => "User is banned"
+                );
+            default:
+                return array(
+                    "key" => $key
+                );
         }
-
-        if($user["ban"]){
-            $resp = array(
-                "error" => "Forbidden", "status" => 403,
-                "message" => "User is banned", 
-                "service" => "login"
-            );
-        }
-
-        if($this->pdo->verify_user_knowing_hash($_POST[self::PASS_INP_NAME],$user["heslo"]) != DB_Model::SUCCESS)
-        {
-            $resp = array(
-                "error" => "Unauthorized", "status" => 401,
-                "message" => "Invalid password", 
-                "service" => "login"
-            );
-        }
-
-        $this->session->login($user);
-        if(is_null($resp)){
-            $resp = array(
-                "status" => 200,
-                "message" => "Logged in",
-                "service" => "login"
-            );
-        }
-        return $resp;
-        */
     }
 }

@@ -317,4 +317,28 @@ class DB_Model
         return $this->delete_query(TB_REVIEW,array($id_ar),"id_clanek=?");
     }
 
+
+    //// API
+    public function new_auth_key($login,$pwd,$expiration){
+        $user = $this->get_user_data($login);
+        if(!$user) return self::UNKNOWN_LOGIN;
+        if($user["ban"]) return self::BANNED;
+        if($this->verify_user_knowing_hash($pwd,$user["heslo"]) != self::SUCCESS) return self::WRONG_PASSWORD;
+
+        // delete old key
+        $this->delete_query(TB_API_KEYS,array($user["id_uzivatel"]),"id_uzivatel=?");
+        // create new key
+        $key = bin2hex(random_bytes(16));
+        $params = array($key,$user["id_uzivatel"],time() + $expiration);
+        $this->insert_query(TB_API_KEYS,$params,"klic, id_uzivatel, expirace","?,?,?");
+        return $key;
+    }
+
+    public function verify_key($key, $rights){
+        $params = array($key);
+        $res = $this->select_query(VW_API_RIGHTS,$params,"klic=?");
+        if(!$res) return false;
+        return $res[0]["expirace"] > time() && $res[0]["prava"] >= $rights;
+    }
+
 }

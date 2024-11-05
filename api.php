@@ -17,6 +17,7 @@
 require "config.php";
 require_once "Models/DB_Model.class.php";
 require_once "Controllers/Api.class.php";
+require 'Composer/vendor/autoload.php';
 
 
 if(isset($_GET["service"])){

@@ -76,6 +76,29 @@ CREATE TABLE IF NOT EXISTS `recenzenti` (
     DEFAULT CHARACTER SET = utf8
     COLLATE = utf8_czech_ci;
 
+DROP TABLE IF EXISTS `api_klice` ;
+
+-- key, expiration, id_uzivatel (foreign and primary key)
+CREATE TABLE IF NOT EXISTS `api_klice` (
+    `klic` VARCHAR(60),
+    `expirace` DATE NOT NULL,
+    `id_uzivatel` INT NOT NULL PRIMARY KEY,
+    INDEX `fk_api_klice_uzivatel_idx` (`id_uzivatel` ASC),
+    CONSTRAINT `fk_api_klice_uzivatel`
+    FOREIGN KEY (`id_uzivatel`)
+    REFERENCES `uzivatel` (`id_uzivatel`)
+    )
+    ENGINE = InnoDB
+    DEFAULT CHARACTER SET = utf8
+    COLLATE = utf8_czech_ci;
+
+DROP VIEW IF EXISTS `api_prava`;
+
+CREATE VIEW IF NOT EXISTS `api_prava` AS -- key, expiration, user_id, pravo
+    SELECT ak.klic, ak.expirace, ak.id_uzivatel, p.vaha as prava 
+    FROM api_klice ak, uzivatel u, pravo p 
+    WHERE ak.id_uzivatel = u.id_uzivatel AND u.id_pravo = p.id_pravo;
+
 DROP VIEW IF EXISTS `nedostatek_recenzentu`;
 
 CREATE VIEW IF NOT EXISTS `nedostatek_recenzentu` AS
