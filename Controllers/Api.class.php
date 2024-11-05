@@ -118,13 +118,11 @@ class Api
         return $body;
     }
 
-    #[ApiMeta(1)]
-    #[OAT\Post(path: "/api.php?service=get_auth_key", summary: "Get API key")]
+    #[OAT\Post(path: "/api.php?service=get_auth_key")]
     #[OAT\Response(response: "200", description: "OK", 
                 content: new OAT\MediaType(
                     mediaType: "application/json",
                     schema: new OAT\Schema(
-                        schema: "AuthKey",
                         properties: [
                             new OAT\Property(property: "key", type: "string")
                         ],
@@ -137,7 +135,6 @@ class Api
            content: new OAT\MediaType(
                 mediaType: "application/json",
                 schema: new OAT\Schema(
-                    schema: "AuthRequest",
                     properties: [
                         new OAT\Property(property: "login", type: "string"),
                         new OAT\Property(property: "pass", type: "string"),
@@ -146,7 +143,8 @@ class Api
                     required: ["login","pass"]
            ))
     )]
-    private function get_auth_key($body){
+    #[ApiMeta(1)]
+    public function get_auth_key($body){
         $login = $body["login"];
         $pass = $body["pass"];
         $expiration = $body["expiration"];

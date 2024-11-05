@@ -1,1 +1,68 @@
-doc: Not Yet Generated
+openapi: 3.0.0
+info:
+  title: 'Conference API'
+  version: '0.1'
+paths:
+  '/api.php?service=get_auth_key':
+    post:
+      operationId: 34e0d9e7027bdc42a94b2fbb73a2d3d4
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - login
+                - pass
+              properties:
+                login:
+                  type: string
+                pass:
+                  type: string
+                expiration:
+                  type: integer
+                  default: 3600
+              type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  key: { type: string }
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      required:
+        - error
+        - status
+        - message
+      properties:
+        error:
+          type: string
+        status:
+          type: integer
+        message:
+          type: string
+        redirect:
+          type: string
+      type: object
