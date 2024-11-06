@@ -15,7 +15,21 @@ class ApiMeta
     }
 }
 
-#[OAT\Info(title: "Conference API", version: "0.1")]
+#[OAT\Schema(
+    schema: "Article",
+    type: "object",
+    properties: [
+        new OAT\Property(property: "id", type: "integer"),
+        new OAT\Property(property: "title", type: "string"),
+        new OAT\Property(property: "file-id", type: "string"),
+        new OAT\Property(property: "descr", type: "string"),
+        new OAT\Property(property: "key-words", type: "string"),
+        new OAT\Property(property: "approved", type: "string", enum: ["yes","no", "pending"])
+    ],
+    required: ["id","title","file-id","descr"]
+)]
+class RespArticle{}
+
 #[OAT\Schema(
     schema: "Error",
     type: "object",
@@ -27,6 +41,9 @@ class ApiMeta
     ],
     required: ["error","status","message"]
 )]
+class RespError{}
+
+#[OAT\Info(title: "Conference API", version: "0.1")]
 class Api
 {
     public function __construct($pdo){
@@ -169,4 +186,193 @@ class Api
                 );
         }
     }
+
+    #[OAT\Get(path: "/api.php?service=get_user", description: "Get user info: first name, last name, email, id. Admins also get rights and banned status.")]
+    #[OAT\Parameter(name: "login", in: "query", required: true, description: "User login or email", schema: new OAT\Schema(type: "string"))]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        properties: [
+                            new OAT\Property(property: "fname", type: "string", description: "First name"),
+                            new OAT\Property(property: "lname", type: "string", description: "Last name"),
+                            new OAT\Property(property: "email", type: "string", description: "Email"),
+                            new OAT\Property(property: "id", type: "integer", description: "User ID"),
+                            new OAT\Property(property: "rights", type: "integer", description: "User rights"),
+                            new OAT\Property(property: "banned", type: "boolean", description: "Is user banned"),
+                        ],
+                        required: ["fname","lname","email","id"]
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(2)]
+    public function get_user($body){
+        $login = $_GET["login"];
+        $user = $this->pdo->get_user($login);
+        if($user === false){
+            return array(
+                "error" => "Not Found", "status" => 404,
+                "message" => "User not found"
+            );
+        }
+        $ret = array(
+            "fname" => $user["jmeno"],
+            "lname" => $user["prijmeni"],
+            "email" => $user["email"],
+            "id" => $user["id_uzivatel"],
+            "rights" => $user["id_pravo"],
+            "banned" => $user["ban"]
+        );
+        if(!$this->pdo->verify_key($_SERVER["HTTP_AUTHORIZATION"],20)){ // admin rights
+            unset($ret["banned"]);
+            unset($ret["rights"]);
+        }
+        return $ret;
+    }
+
+    #[OAT\Get(path: "/api.php?service=get_user_articles", description: "Get articles by user")]
+    #[OAT\Parameter(name: "id", in: "query", required: true, description: "User ID", schema: new OAT\Schema(type: "integer"))]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        type: "array",
+                        items: new OAT\Schema(
+                            ref: "#/components/schemas/Article"
+                        )
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(2)]
+    public function get_user_articles($body){
+        $id = $_GET["id"];
+        $articles = $this->pdo->articles_by_author($id);
+        if($articles === false){
+            return array(
+                "error" => "Not Found", "status" => 404,
+                "message" => "User not found",
+                "redirect" => "/api.php?service=get_user"
+            );
+        }
+        $app_state = array("pending","yes","no");
+        return array_reduce($articles,function($acc,$article){
+            $acc[] = array(
+                "id" => $article["id_clanek"],
+                "title" => $article["nazev"],
+                "file-id" => $article["nazev_souboru"],
+                "descr" => $article["popis"],
+                "key-words" => $article["klicova_slova"],
+                "approved" => $app_state[$article["schvalen"]]
+            );
+            return $acc;
+        },array());
+    }
+
+    #[OAT\Get(path: "/api.php?service=show_article", description: "Get article contents by file ID")]
+    #[OAT\Parameter(name: "file-id", in: "query", required: true, description: "File ID", schema: new OAT\Schema(type: "string"))]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/pdf",
+                    schema: new OAT\Schema(
+                        type: "string",
+                        format: "binary"
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(2)]
+    public function show_article($body){
+        $file_id = $_GET["file-id"];
+        if(!file_exists(ARTICLES_DIR."$file_id")){
+            return array(
+                "error" => "Not Found", "status" => 404,
+                "message" => "Article not found"
+            );
+        }
+        header("Content-Type: application/pdf");
+        readfile(ARTICLES_DIR."$file_id");
+    }
+
+    #[OAT\Get(path: "/api.php?service=get_articles", description: "Get all ACCEPTED articles")]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        type: "array",
+                        items: new OAT\Schema(
+                            ref: "#/components/schemas/Article"
+                        )
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(1)]
+    public function get_articles($body){
+        $articles = $this->pdo->get_accepted_articles();
+        $app_state = array("pending","yes","no");
+        return array_reduce($articles,function($acc,$article){
+            $acc[] = array(
+                "id" => $article["id_clanek"],
+                "title" => $article["nazev"],
+                "file-id" => $article["nazev_souboru"],
+                "descr" => $article["popis"],
+                "key-words" => $article["klicova_slova"],
+            );
+            return $acc;
+        },array());
+    }
+
+    #[OAT\Put(path: "/api.php?service=ban_users", description: "Ban users by logins or emails")]
+    #[OAT\RequestBody(
+           content: new OAT\MediaType(
+                mediaType: "application/json",
+                schema: new OAT\Schema(
+                    type: "array",
+                    items: new OAT\Schema(
+                        type: "string"
+                ))
+           )
+    )]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        type: "array",
+                        items: new OAT\Schema(
+                            type: "string"
+                        )
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(10)]
+    public function ban_users($body){
+        $banned = array();
+        $key_rights = $this->select_query(VW_API_RIGHTS,$params,"klic=?")[0]["prava"];
+        foreach($body as $login){
+            //can only ban users with lower rights
+            $rights = $this->pdo->get_user_data($login);
+            if(!$rights){
+                continue;
+            }
+            $rights = array(0,20,10,5,2)[$rights["id_pravo"]];
+            if($key_rights <= $rights){
+                continue;
+            }
+            $this->pdo->ban_user($login);
+            $banned[] = $login;
+        }
+        return $banned;
+    }
+
 }
