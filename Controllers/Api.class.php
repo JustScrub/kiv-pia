@@ -26,9 +26,8 @@ class ApiMeta
         new OAT\Property(property: "key-words", type: "string"),
         new OAT\Property(property: "approved", type: "string", enum: ["yes","no", "pending"])
     ],
-    required: ["id","title","file-id","descr"]
 )]
-class RespArticle{}
+class _Article{}
 
 #[OAT\Schema(
     schema: "Error",
@@ -41,7 +40,7 @@ class RespArticle{}
     ],
     required: ["error","status","message"]
 )]
-class RespError{}
+class _Error{}
 
 #[OAT\Info(title: "Conference API", version: "0.1")]
 class Api
@@ -373,5 +372,118 @@ class Api
         }
         return $banned;
     }
+
+    #[OAT\Delete(path: "/api.php?service=delete_article", description: "Delete user article by ID")]
+    #[OAT\Parameter(name: "id", in: "query", required: true, description: "Article ID", schema: new OAT\Schema(type: "integer"))]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        type: "string",
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(2)]
+    public function delete_article($body){
+        $id = $_GET["id"];
+        $ar_data = $this->pdo->get_article_author($id);
+        if(!$ar_data){
+            return array(
+                "error" => "Not Found", "status" => 404,
+                "message" => "Article not found"
+            );
+        }
+        // check if the user deletes their own article
+        $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
+        if($ar_data["id_uzivatel"] != $user_id){
+            return array(
+                "error" => "Forbidden", "status" => 403,
+                "message" => "You can only delete your own articles"
+            );
+        }
+        $this->pdo->deleteArticle($id);
+        unlink(ARTICLES_DIR.$ar_data["nazev_souboru"]);
+        return "OK";
+    }
+
+    #[OAT\Put(path: "/api.php?service=add_article", description: "Add article information")]
+    #[OAT\RequestBody(
+           content: new OAT\MediaType(
+                mediaType: "application/json",
+                schema: new OAT\Schema(
+                    properties: [
+                        new OAT\Property(property: "title", type: "string"),
+                        new OAT\Property(property: "key-words", type: "string"),
+                        new OAT\Property(property: "descr", type: "string")
+                    ],
+                    required: ["title","key-words","descr"]
+           ))
+    )]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        type: "string",
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(2)]
+    public function add_article($body){
+        $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
+        // check if the user has article with "tmp" file path
+        // yes -> update the title, key-words, description
+        // no -> create a new article
+        $article = $this->pdo->get_tmp_article($user_id);
+        if(count($article) == 0){
+            $this->pdo->addArticle($user_id,$body["title"],"tmp",$body["key-words"],$body["descr"]);
+        } else {
+            $this->pdo->update_arinfo($article[0]["id_clanek"],$body["title"],$body["key-words"],$body["descr"]);
+        }
+        return "OK";
+    }
+
+    #[OAT\Post(path: "/api.php?service=upload_article", description: "Upload article file")]
+    #[OAT\RequestBody(
+           content: new OAT\MediaType(
+                mediaType: "application/pdf",
+                schema: new OAT\Schema(
+                    type: "string",
+                    format: "binary"
+           ))
+    )]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        type: "string",
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(2)]
+    public function upload_article($body){
+        $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
+        $article = $this->pdo->get_tmp_article($user_id);
+        if(count($article) == 0){
+            return array(
+                "error" => "Not Found", "status" => 404,
+                "message" => "No article data found. Add article information first",
+                "redirect" => "/api.php?service=add_article"
+            );
+        }
+        $filename = hash("sha256",$user_id . $article[0]["nazev"],true);
+        $filename = base64_encode($filename).".pdf";
+        $this->pdo->update_arfilepath($article[0]["id_clanek"],$filename);
+        // TODO: check if $body contains the file...
+        file_put_contents(ARTICLES_DIR.$filename,$body);
+    }
+
 
 }

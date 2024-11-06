@@ -110,6 +110,11 @@ class DB_Model
         return $this->select_query(TB_ARTICLE,$params,"id_autor=?","id_clanek", "desc");
     }
 
+    public function get_tmp_article($user_id){
+        $params=array($user_id);
+        return $this->select_query(TB_ARTICLE,$params,"id_autor=? and nazev_souboru='tmp'");
+    }
+
     public function get_article($id){
         $params=array($id);
         return $this->select_query(TB_ARTICLE,$params,"id_clanek=?");
@@ -270,6 +275,23 @@ class DB_Model
      */
     public function ardecl($id){
         return $this->update_query(TB_ARTICLE,array($id),"schvalen=2","id_clanek=?");
+    }
+
+    /**
+     * update ARticle INfo
+     * @param $id
+     * @param $title
+     * @param $key_words
+     * @param $desc
+     */
+    public function update_arinfo($id,$title,$key_words,$desc){
+        $p=array($title,$key_words,$desc,$id);
+        $this->update_query(TB_ARTICLE,$p,"nazev=?, klicova_slova=?, popis=?","id_clanek=?");
+    }
+
+    public function update_arfilepath($id,$new_file_name){
+        $p=array($new_file_name,$id);
+        $this->update_query(TB_ARTICLE,$p,"nazev_souboru=?","id_clanek=?");
     }
 
     /**
