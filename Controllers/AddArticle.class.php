@@ -34,12 +34,8 @@ class AddArticle extends ALoggedController
             return;
         }
 
-        //replace spaces for '+' and remove forbidden file name chars
-        $filename = str_replace(" ","+",preg_replace("~[<>:/|#{}=?\"*\\\\]~","",$_POST["nazev"]));
-        //add author id and extension
-        $filename = $this->session->get(Session_Model::USER_ID) . "-" . $filename . ".pdf";
-        //just to be sure
-        $filename = basename($filename);
+        $filename = hash("sha256",$this->session->get(Session_Model::USER_ID).$_POST["nazev"],true,);
+        $filename = base64_encode($filename).".pdf";
 
         if(
             $this->pdo->addArticle( $this->session->get(Session_Model::USER_ID),
