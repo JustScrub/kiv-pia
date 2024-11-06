@@ -240,9 +240,7 @@ class Api
                     mediaType: "application/json",
                     schema: new OAT\Schema(
                         type: "array",
-                        items: new OAT\Schema(
-                            ref: "#/components/schemas/Article"
-                        )
+                        items: new OAT\Items(ref: "#/components/schemas/Article")
                 ))
     )]
     #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
@@ -294,7 +292,8 @@ class Api
         if(!file_exists(ARTICLES_DIR."$file_id")){
             return array(
                 "error" => "Not Found", "status" => 404,
-                "message" => "Article not found"
+                "message" => "Article not found",
+                "redirect" => "/api.php?service=get_articles"
             );
         }
         header("Content-Type: application/pdf");
@@ -307,7 +306,7 @@ class Api
                     mediaType: "application/json",
                     schema: new OAT\Schema(
                         type: "array",
-                        items: new OAT\Schema(
+                        items: new OAT\Items(
                             ref: "#/components/schemas/Article"
                         )
                 ))
@@ -337,7 +336,7 @@ class Api
                 mediaType: "application/json",
                 schema: new OAT\Schema(
                     type: "array",
-                    items: new OAT\Schema(
+                    items: new OAT\Items(
                         type: "string"
                 ))
            )
@@ -347,7 +346,7 @@ class Api
                     mediaType: "application/json",
                     schema: new OAT\Schema(
                         type: "array",
-                        items: new OAT\Schema(
+                        items: new OAT\Items(
                             type: "string"
                         )
                 ))

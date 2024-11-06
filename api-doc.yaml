@@ -15,10 +15,13 @@ paths:
                 - pass
               properties:
                 login:
+                  description: 'Username or email'
                   type: string
                 pass:
+                  description: Password
                   type: string
                 expiration:
+                  description: 'Expiration time in seconds'
                   type: integer
                   default: 3600
               type: object
@@ -49,8 +52,245 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/api.php?service=get_user':
+    get:
+      description: 'Get user info: first name, last name, email, id. Admins also get rights and banned status.'
+      operationId: 382ffa4dc9ee2972e957c1e258232d09
+      parameters:
+        -
+          name: login
+          in: query
+          description: 'User login or email'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                required:
+                  - fname
+                  - lname
+                  - email
+                  - id
+                properties:
+                  fname: { description: 'First name', type: string }
+                  lname: { description: 'Last name', type: string }
+                  email: { description: Email, type: string }
+                  id: { description: 'User ID', type: integer }
+                  rights: { description: 'User rights', type: integer }
+                  banned: { description: 'Is user banned', type: boolean }
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api.php?service=get_user_articles':
+    get:
+      description: 'Get articles by user'
+      operationId: cbc1ff07738ba8335e7198e95c0464e0
+      parameters:
+        -
+          name: id
+          in: query
+          description: 'User ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api.php?service=show_article':
+    get:
+      description: 'Get article contents by file ID'
+      operationId: 556ab51c15f1f3c868190de63f36ccc7
+      parameters:
+        -
+          name: file-id
+          in: query
+          description: 'File ID'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api.php?service=get_articles':
+    get:
+      description: 'Get all ACCEPTED articles'
+      operationId: c0807e8d1399e004e99f38aff59826f5
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api.php?service=ban_users':
+    put:
+      description: 'Ban users by logins or emails'
+      operationId: e780d7d4726a19b2245e101ed99d534d
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
+    Article:
+      required:
+        - id
+        - title
+        - file-id
+        - descr
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        file-id:
+          type: string
+        descr:
+          type: string
+        key-words:
+          type: string
+        approved:
+          type: string
+          enum:
+            - 'yes'
+            - 'no'
+            - pending
+      type: object
     Error:
       required:
         - error
