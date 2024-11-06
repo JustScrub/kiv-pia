@@ -5,6 +5,7 @@ info:
 paths:
   '/api.php?service=get_auth_key':
     post:
+      description: 'Create new authorization key for the user with the optionally specified expiration time and return it'
       operationId: 34e0d9e7027bdc42a94b2fbb73a2d3d4
       requestBody:
         content:
@@ -154,16 +155,16 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=show_article':
     get:
-      description: 'Get article contents by file ID'
+      description: 'Get article contents article ID'
       operationId: 556ab51c15f1f3c868190de63f36ccc7
       parameters:
         -
-          name: file-id
+          name: id
           in: query
-          description: 'File ID'
+          description: 'Article ID'
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         '200':
           description: OK
@@ -265,26 +266,153 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/api.php?service=delete_article':
+    delete:
+      description: 'Delete user article by ID'
+      operationId: 48c1861b7ddde7237441a70d6ec63ffa
+      parameters:
+        -
+          name: id
+          in: query
+          description: 'Article ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api.php?service=add_article':
+    put:
+      description: 'Add article information'
+      operationId: 747869e17690d3af570e8d659162904d
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - title
+                - key-words
+                - descr
+              properties:
+                title:
+                  type: string
+                key-words:
+                  type: string
+                descr:
+                  type: string
+              type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api.php?service=upload_article':
+    post:
+      description: 'Upload article file'
+      operationId: 39103b6ca6e03ac02ccada0a07038547
+      requestBody:
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Article:
-      required:
-        - id
-        - title
-        - file-id
-        - descr
       properties:
         id:
+          description: 'Article ID'
           type: integer
         title:
-          type: string
-        file-id:
+          description: 'Article title'
           type: string
         descr:
+          description: Description
           type: string
         key-words:
+          description: 'Key words'
           type: string
         approved:
+          description: 'Approval status'
           type: string
           enum:
             - 'yes'
@@ -298,11 +426,15 @@ components:
         - message
       properties:
         error:
+          description: 'Error type'
           type: string
         status:
+          description: 'HTTP status code'
           type: integer
         message:
+          description: 'Error message'
           type: string
         redirect:
+          description: 'API endpoint that may help resolve the error'
           type: string
       type: object

@@ -19,12 +19,11 @@ class ApiMeta
     schema: "Article",
     type: "object",
     properties: [
-        new OAT\Property(property: "id", type: "integer"),
-        new OAT\Property(property: "title", type: "string"),
-        new OAT\Property(property: "file-id", type: "string"),
-        new OAT\Property(property: "descr", type: "string"),
-        new OAT\Property(property: "key-words", type: "string"),
-        new OAT\Property(property: "approved", type: "string", enum: ["yes","no", "pending"])
+        new OAT\Property(property: "id", type: "integer", description: "Article ID"),
+        new OAT\Property(property: "title", type: "string", description: "Article title"),
+        new OAT\Property(property: "descr", type: "string", description: "Description"),
+        new OAT\Property(property: "key-words", type: "string", description: "Key words"),
+        new OAT\Property(property: "approved", type: "string", enum: ["yes","no", "pending"], description: "Approval status")
     ],
 )]
 class _Article{}
@@ -33,10 +32,10 @@ class _Article{}
     schema: "Error",
     type: "object",
     properties: [
-        new OAT\Property(property: "error", type: "string"),
-        new OAT\Property(property: "status", type: "integer"),
-        new OAT\Property(property: "message", type: "string"),
-        new OAT\Property(property: "redirect", type: "string")
+        new OAT\Property(property: "error", type: "string", description: "Error type"),
+        new OAT\Property(property: "status", type: "integer", description: "HTTP status code"),
+        new OAT\Property(property: "message", type: "string", description: "Error message"),
+        new OAT\Property(property: "redirect", type: "string", description: "API endpoint that may help resolve the error")
     ],
     required: ["error","status","message"]
 )]
@@ -135,7 +134,7 @@ class Api
         return $body;
     }
 
-    #[OAT\Post(path: "/api.php?service=get_auth_key")]
+    #[OAT\Post(path: "/api.php?service=get_auth_key", description: "Create new authorization key for the user with the optionally specified expiration time and return it")]
     #[OAT\Response(response: "200", description: "OK", 
                 content: new OAT\MediaType(
                     mediaType: "application/json",
@@ -271,8 +270,8 @@ class Api
         },array());
     }
 
-    #[OAT\Get(path: "/api.php?service=show_article", description: "Get article contents by file ID")]
-    #[OAT\Parameter(name: "file-id", in: "query", required: true, description: "File ID", schema: new OAT\Schema(type: "string"))]
+    #[OAT\Get(path: "/api.php?service=show_article", description: "Get article contents article ID")]
+    #[OAT\Parameter(name: "id", in: "query", required: true, description: "Article ID", schema: new OAT\Schema(type: "integer"))]
     #[OAT\Response(response: "200", description: "OK", 
                 content: new OAT\MediaType(
                     mediaType: "application/pdf",
@@ -287,7 +286,16 @@ class Api
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
     public function show_article($body){
-        $file_id = $_GET["file-id"];
+        $id = $_GET["id"];
+        $file_id = $this->pdo->get_article($id);
+        if(!$file_id){
+            return array(
+                "error" => "Not Found", "status" => 404,
+                "message" => "Article not found",
+                "redirect" => "/api.php?service=get_articles"
+            );
+        }
+        $file_id = $file_id[0]["nazev_souboru"];
         if(!file_exists(ARTICLES_DIR."$file_id")){
             return array(
                 "error" => "Not Found", "status" => 404,
@@ -321,7 +329,6 @@ class Api
             $acc[] = array(
                 "id" => $article["id_clanek"],
                 "title" => $article["nazev"],
-                "file-id" => $article["nazev_souboru"],
                 "descr" => $article["popis"],
                 "key-words" => $article["klicova_slova"],
             );
