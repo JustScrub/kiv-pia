@@ -1,6 +1,7 @@
 <?php
 
 namespace conference\Controllers;
+use conference\Models\DB_Model as DB_Model;
 use Attribute;
 use OpenApi\Attributes as OAT;
 
@@ -136,9 +137,9 @@ class Api
                 mediaType: "application/json",
                 schema: new OAT\Schema(
                     properties: [
-                        new OAT\Property(property: "login", type: "string"),
-                        new OAT\Property(property: "pass", type: "string"),
-                        new OAT\Property(property: "expiration", type: "integer", default: 3600)
+                        new OAT\Property(property: "login", type: "string", description: "Username or email"),
+                        new OAT\Property(property: "pass", type: "string", description: "Password"),
+                        new OAT\Property(property: "expiration", type: "integer", default: 3600, description: "Expiration time in seconds")
                     ],
                     required: ["login","pass"]
            ))
@@ -151,13 +152,13 @@ class Api
 
         $key = $this->pdo->new_auth_key($login,$pass,$expiration);
         switch($key){
-            case Models\DB_Model::UNKNOWN_LOGIN:
-            case Models\DB_Model::WRONG_PASSWORD:
+            case DB_Model::UNKNOWN_LOGIN:
+            case DB_Model::WRONG_PASSWORD:
                 return array(
                     "error" => "Unauthorized", "status" => 401,
                     "message" => "Invalid login or password"
                 );
-            case Models\DB_Model::BANNED:
+            case DB_Model::BANNED:
                 return array(
                     "error" => "Forbidden", "status" => 403,
                     "message" => "User is banned"
