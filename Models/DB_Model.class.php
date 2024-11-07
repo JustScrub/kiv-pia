@@ -1,6 +1,7 @@
 <?php
 
 namespace conference\Models;
+require_once "Logger_Model.class.php";
 
 use PDO;
 use PDOException;
@@ -362,6 +363,7 @@ class DB_Model
         $params = array($key);
         $res = $this->select_query(VW_API_RIGHTS,$params,"klic=?");
         if(!$res) return false;
+        if(count($res) == 0) return false;
         return $res[0]["expirace"] > time() && $res[0]["prava"] >= $rights;
     }
 

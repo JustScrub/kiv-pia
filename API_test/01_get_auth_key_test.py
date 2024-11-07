@@ -17,3 +17,10 @@ def test_banned():
 def test_wrong_pass():
     response = requests.post(f'{HOST}/api.php?service=get_auth_key', json={'login': 'test', 'pass': 'wrong'})
     assert response.status_code == 401
+
+if __name__ == "__main__":
+    test_noexist()
+    test_ok()
+    test_banned()
+    test_wrong_pass()
+    print

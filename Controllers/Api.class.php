@@ -42,11 +42,31 @@ class _Article{}
 )]
 class _Error{}
 
+function getAuthorizationHeader(){
+    $headers = null;
+    if (isset($_SERVER['Authorization'])) {
+        $headers = trim($_SERVER["Authorization"]);
+    }
+    else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+        $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+    } elseif (function_exists('apache_request_headers')) {
+        $requestHeaders = apache_request_headers();
+        // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
+        $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+        //print_r($requestHeaders);
+        if (isset($requestHeaders['Authorization'])) {
+            $headers = trim($requestHeaders['Authorization']);
+        }
+    }
+    return $headers;
+}
+
 #[OAT\Info(title: "Conference API", version: "0.1")]
 class Api
 {
     public function __construct($pdo){
         $this->pdo = $pdo;
+        $_SERVER["HTTP_AUTHORIZATION"] = getAuthorizationHeader();
     }
 
     public function execute_service($service){
@@ -95,6 +115,9 @@ class Api
         if(is_null($resp)){ // no error up to this point
             $resp = $this->$service($body);
         }
+        if(is_null($resp)){
+            return;
+        }
 
         if(isset($resp["error"])){
             header("HTTP/1.1 $resp[status] $resp[error]");
@@ -126,6 +149,10 @@ class Api
             );
         }
         $params = $params[0]->newInstance()->content[0]->schema;
+
+        if(!is_array($params->properties)){
+            return $body;
+        }
 
         foreach($params->properties as $p){
             if(in_array($p->property,$params->required) && !array_key_exists($p->property,$body)){
@@ -216,7 +243,7 @@ class Api
     #[ApiMeta(2)]
     public function get_user($body){
         $login = $_GET["login"];
-        $user = $this->pdo->get_user($login);
+        $user = $this->pdo->get_user_data($login);
         if(!$user){
             return array(
                 "error" => "Not Found", "status" => 404,
@@ -231,7 +258,7 @@ class Api
             "rights" => $user["id_pravo"],
             "banned" => $user["ban"]
         );
-        if(!$this->pdo->verify_key($_SERVER["HTTP_AUTHORIZATION"],20)){ // admin rights
+        if(!$this->pdo->verify_key($_SERVER["HTTP_AUTHORIZATION"],10)){ // admin rights
             unset($ret["banned"]);
             unset($ret["rights"]);
         }
@@ -256,7 +283,7 @@ class Api
     public function get_user_articles($body){
         $id = $_GET["id"];
         $articles = $this->pdo->articles_by_author($id);
-        if($articles === false){
+        if(is_null($articles)){
             return array(
                 "error" => "Not Found", "status" => 404,
                 "message" => "User not found",
@@ -264,10 +291,10 @@ class Api
             );
         }
         $app_state = array("pending","yes","no");
-        return array_reduce($articles,function($acc,$article){
+        return array_reduce($articles,function($acc,$article) use ($app_state){
             $acc[] = array(
                 "id" => $article["id_clanek"],
-                "author_id" => $id,
+                "author_id" => $article["id_autor"],
                 "title" => $article["nazev"],
                 "descr" => $article["popis"],
                 "key-words" => $article["klicova_slova"],
@@ -312,10 +339,11 @@ class Api
             );
         }
         header("Content-Type: application/pdf");
-        header("Content-Disposition: inline; filename=\"$title\"");
+        header("Content-Disposition: attachment; filename=\"$title\".pdf");
         header('Content-Transfer-Encoding: binary');
         header('Accept-Ranges: bytes');
         readfile(ARTICLES_DIR."$file_id");
+        return null;
     }
 
     #[OAT\Get(path: "/api.php?service=get_articles", description: "Get all ACCEPTED articles")]
@@ -332,11 +360,11 @@ class Api
     #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
-    #[ApiMeta(1)]
+    #[ApiMeta(2)]
     public function get_articles($body){
         $articles = $this->pdo->get_accepted_articles();
         $app_state = array("pending","yes","no");
-        return array_reduce($articles,function($acc,$article){
+        return array_reduce($articles,function($acc,$article) use ($app_state){
             $acc[] = array(
                 "id" => $article["id_clanek"],
                 "author_id" => $article["id_autor"],
@@ -416,21 +444,22 @@ class Api
     public function delete_article($body){
         $id = $_GET["id"];
         $ar_data = $this->pdo->get_article_author($id);
-        if(!$ar_data){
+        if(!$ar_data || count($ar_data) == 0){
             return array(
                 "error" => "Not Found", "status" => 404,
                 "message" => "Article not found"
             );
         }
+        $ar_data = $ar_data[0];
         // check if the user deletes their own article
         $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
-        if($ar_data["id_uzivatel"] != $user_id){
+        if($ar_data["id_autor"] != $user_id){
             return array(
                 "error" => "Forbidden", "status" => 403,
                 "message" => "You can only delete your own articles"
             );
         }
-        $this->pdo->deleteArticle($id);
+        $this->pdo->deletArticle($id);
         unlink(ARTICLES_DIR.$ar_data["nazev_souboru"]);
         return "OK";
     }

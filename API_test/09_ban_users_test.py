@@ -33,3 +33,10 @@ def test_ok():
         assert b in j
     for b in ["superadmin", "noexist"]:
         assert b not in j
+
+if __name__ == "__main__":
+    test_low_rights()
+    test_no_param()
+    test_bad_param()
+    test_ok()
+    print("All tests passed!")

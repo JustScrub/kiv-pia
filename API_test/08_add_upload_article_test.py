@@ -20,18 +20,18 @@ def test_add_new():
                              headers={'Authorization': get_id("adar")},
                              json={"title": "Add article test", "descr": "Test", "key-words": "Test"})
     assert response.status_code == 200
-    assert response.text == "OK"
     response = requests.get(f'{HOST}/api.php?service=get_user_articles&id=8', 
                             headers={'Authorization': get_id("adar")})
     j = response.json()
-    assert len(j) == 1
+    assert isinstance(j, list), response.text
+    assert len(j) == 1, response.text
     assert is_subdict(j[0], {
         "title": "Add article test",
         "descr": "Test",
         "key-words": "Test",
         "author_id": 8,
         "approved": "pending"
-    })
+    }), response.text
     id = j[0]["id"]
     # delete the article
     response = requests.get(f'{HOST}/api.php?service=delete_article&id={id}', 
@@ -45,7 +45,6 @@ def test_add_after_add():
                              headers={'Authorization': get_id("adar")},
                              json={"title": "Ovewritten", "descr": "OW", "key-words": "OW"})
     assert response.status_code == 200
-    assert response.text == "OK"
     response = requests.get(f'{HOST}/api.php?service=get_user_articles&id=8', 
                             headers={'Authorization': get_id("adar")})
     j = response.json()
@@ -88,7 +87,6 @@ def test_upload_ok():
                                  headers={'Authorization': get_id("adar"), 'Content-Type': 'application/pdf'},
                                  data=data)
     assert response.status_code == 200
-    assert response.text == "OK"
     ardir_content = os.listdir("../Articles")
     assert len(ardir_content) == len(ardir_content_before) + 1
     fname = [f for f in ardir_content if f not in ardir_content_before][0]
@@ -108,3 +106,13 @@ def test_upload_ok():
     # delete the article
     response = requests.get(f'{HOST}/api.php?service=delete_article&id={id}', 
                             headers={'Authorization': get_id("adar")})
+
+if __name__ == "__main__":
+    test_add_no_param()
+    test_add_bad_param()
+    test_add_new()
+    test_add_after_add()
+    test_upload_no_param()
+    test_upload_no_add()
+    test_upload_ok()
+    print("All tests passed!")

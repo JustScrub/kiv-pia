@@ -81,7 +81,7 @@ DROP TABLE IF EXISTS `api_klice` ;
 -- key, expiration, id_uzivatel (foreign and primary key)
 CREATE TABLE IF NOT EXISTS `api_klice` (
     `klic` VARCHAR(60),
-    `expirace` DATE NOT NULL,
+    `expirace` BIGINT NOT NULL,
     `id_uzivatel` INT NOT NULL PRIMARY KEY,
     INDEX `fk_api_klice_uzivatel_idx` (`id_uzivatel` ASC),
     CONSTRAINT `fk_api_klice_uzivatel`
