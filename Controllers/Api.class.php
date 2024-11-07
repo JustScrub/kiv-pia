@@ -20,6 +20,7 @@ class ApiMeta
     type: "object",
     properties: [
         new OAT\Property(property: "id", type: "integer", description: "Article ID"),
+        new OAT\Property(property: "author_id", type: "integer", description: "Author ID"),
         new OAT\Property(property: "title", type: "string", description: "Article title"),
         new OAT\Property(property: "descr", type: "string", description: "Description"),
         new OAT\Property(property: "key-words", type: "string", description: "Key words"),
@@ -117,8 +118,14 @@ class Api
 
         $params = $reflection->getAttributes(OAT\RequestBody::class);
         if(count($params) == 0){ return array(); };
-        $params = $params[0]->newInstance()->content[0]->schema;
         $body = json_decode(file_get_contents("php://input"), true) ?? array();
+        if(count($body) == 0){
+            return array(
+                "error" => "Bad Request", "status" => 400,
+                "message" => "Missing request body"
+            );
+        }
+        $params = $params[0]->newInstance()->content[0]->schema;
 
         foreach($params->properties as $p){
             if(in_array($p->property,$params->required) && !array_key_exists($p->property,$body)){
@@ -210,7 +217,7 @@ class Api
     public function get_user($body){
         $login = $_GET["login"];
         $user = $this->pdo->get_user($login);
-        if($user === false){
+        if(!$user){
             return array(
                 "error" => "Not Found", "status" => 404,
                 "message" => "User not found"
@@ -260,8 +267,8 @@ class Api
         return array_reduce($articles,function($acc,$article){
             $acc[] = array(
                 "id" => $article["id_clanek"],
+                "author_id" => $id,
                 "title" => $article["nazev"],
-                "file-id" => $article["nazev_souboru"],
                 "descr" => $article["popis"],
                 "key-words" => $article["klicova_slova"],
                 "approved" => $app_state[$article["schvalen"]]
@@ -295,15 +302,19 @@ class Api
                 "redirect" => "/api.php?service=get_articles"
             );
         }
+        $title = $file_id[0]["nazev"];
         $file_id = $file_id[0]["nazev_souboru"];
         if(!file_exists(ARTICLES_DIR."$file_id")){
             return array(
                 "error" => "Not Found", "status" => 404,
-                "message" => "Article not found",
+                "message" => "Article file not found",
                 "redirect" => "/api.php?service=get_articles"
             );
         }
         header("Content-Type: application/pdf");
+        header("Content-Disposition: inline; filename=\"$title\"");
+        header('Content-Transfer-Encoding: binary');
+        header('Accept-Ranges: bytes');
         readfile(ARTICLES_DIR."$file_id");
     }
 
@@ -328,6 +339,8 @@ class Api
         return array_reduce($articles,function($acc,$article){
             $acc[] = array(
                 "id" => $article["id_clanek"],
+                "author_id" => $article["id_autor"],
+                "approved" => $app_state[$article["schvalen"]],
                 "title" => $article["nazev"],
                 "descr" => $article["popis"],
                 "key-words" => $article["klicova_slova"],
@@ -362,6 +375,12 @@ class Api
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(10)]
     public function ban_users($body){
+        if(!array_is_list($body)){
+            return array(
+                "error" => "Bad Request", "status" => 400,
+                "message" => "Body must be an array of strings"
+            );
+        }
         $banned = array();
         $key_rights = $this->select_query(VW_API_RIGHTS,$params,"klic=?")[0]["prava"];
         foreach($body as $login){
@@ -490,6 +509,7 @@ class Api
         $this->pdo->update_arfilepath($article[0]["id_clanek"],$filename);
         // TODO: check if $body contains the file...
         file_put_contents(ARTICLES_DIR.$filename,$body);
+        return "OK";
     }
 
 

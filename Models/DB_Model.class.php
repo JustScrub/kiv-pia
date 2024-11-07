@@ -253,6 +253,8 @@ class DB_Model
 
     public function ban_user($id){
         $this->update_query(TB_USERS,array($id),"ban=true","id_uzivatel=?");
+        //delete api keys
+        $this->delete_query(TB_API_KEYS,array($id),"id_uzivatel=?");
     }
 
     /**
