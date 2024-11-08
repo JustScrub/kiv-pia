@@ -24,7 +24,7 @@ def test_ok():
                             headers={'Authorization': get_id("rmar")})
     assert response.status_code == 200
     assert not os.path.exists("../Articles/test7.pdf")
-    response = requests.get(f'{HOST}/api.php?service=get_user_articles&id=8', 
+    response = requests.get(f'{HOST}/api.php?service=get_user_articles&login=rmar', 
                             headers={'Authorization': get_id()})
     assert not article_id_in_list(response.json(),8), response.text
 

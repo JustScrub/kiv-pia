@@ -71,6 +71,7 @@ class Api
 
     public function execute_service($service){
         $resp = null;
+        $body = null;
         do {
             if($service == "get_auth_key"){
                 break;
@@ -141,19 +142,31 @@ class Api
 
         $params = $reflection->getAttributes(OAT\RequestBody::class);
         if(count($params) == 0){ return array(); };
-        $body = json_decode(file_get_contents("php://input"), true) ?? array();
+        $params = $params[0]->newInstance()->content[0];
+        
+        $body = file_get_contents("php://input");
+        if(strlen($body) == 0){
+            return array(
+                "error" => "Bad Request", "status" => 400,
+                "message" => "Missing request body"
+            );
+        }
+        if($params->mediaType != "application/json"){
+            return $body;
+        }
+        $body = json_decode($body, true) ?? array();
+        if($params->schema->type != "object"){
+            return $body;
+        }
+
         if(count($body) == 0){
             return array(
                 "error" => "Bad Request", "status" => 400,
                 "message" => "Missing request body"
             );
         }
-        $params = $params[0]->newInstance()->content[0]->schema;
 
-        if(!is_array($params->properties)){
-            return $body;
-        }
-
+        $params = $params->schema;
         foreach($params->properties as $p){
             if(in_array($p->property,$params->required) && !array_key_exists($p->property,$body)){
                 return array(
@@ -185,6 +198,7 @@ class Api
            content: new OAT\MediaType(
                 mediaType: "application/json",
                 schema: new OAT\Schema(
+                    type: "object",
                     properties: [
                         new OAT\Property(property: "login", type: "string", description: "Username or email"),
                         new OAT\Property(property: "pass", type: "string", description: "Password"),
@@ -266,7 +280,7 @@ class Api
     }
 
     #[OAT\Get(path: "/api.php?service=get_user_articles", description: "Get articles by user")]
-    #[OAT\Parameter(name: "id", in: "query", required: true, description: "User ID", schema: new OAT\Schema(type: "integer"))]
+    #[OAT\Parameter(name: "login", in: "query", required: true, description: "User login or email", schema: new OAT\Schema(type: "string"))]
     #[OAT\Response(response: "200", description: "OK", 
                 content: new OAT\MediaType(
                     mediaType: "application/json",
@@ -281,15 +295,17 @@ class Api
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
     public function get_user_articles($body){
-        $id = $_GET["id"];
-        $articles = $this->pdo->articles_by_author($id);
-        if(is_null($articles)){
+        $login = $_GET["login"];
+        $user = $this->pdo->get_user_data($login);
+        if(!$user){
             return array(
                 "error" => "Not Found", "status" => 404,
                 "message" => "User not found",
                 "redirect" => "/api.php?service=get_user"
             );
         }
+        $id = $user["id_uzivatel"];
+        $articles = $this->pdo->articles_by_author($id);
         $app_state = array("pending","yes","no");
         return array_reduce($articles,function($acc,$article) use ($app_state){
             $acc[] = array(
@@ -410,7 +426,7 @@ class Api
             );
         }
         $banned = array();
-        $key_rights = $this->select_query(VW_API_RIGHTS,$params,"klic=?")[0]["prava"];
+        $key_rights = $this->pdo->select_query(VW_API_RIGHTS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["prava"];
         foreach($body as $login){
             //can only ban users with lower rights
             $rights = $this->pdo->get_user_data($login);
@@ -469,12 +485,13 @@ class Api
            content: new OAT\MediaType(
                 mediaType: "application/json",
                 schema: new OAT\Schema(
+                    type: "object",
                     properties: [
                         new OAT\Property(property: "title", type: "string"),
-                        new OAT\Property(property: "key-words", type: "string"),
+                        new OAT\Property(property: "key-words", type: "string", default: null),
                         new OAT\Property(property: "descr", type: "string")
                     ],
-                    required: ["title","key-words","descr"]
+                    required: ["title","descr"]
            ))
     )]
     #[OAT\Response(response: "200", description: "OK", 
@@ -495,7 +512,7 @@ class Api
         // no -> create a new article
         $article = $this->pdo->get_tmp_article($user_id);
         if(count($article) == 0){
-            $this->pdo->addArticle($user_id,$body["title"],"tmp",$body["key-words"],$body["descr"]);
+            $this->pdo->addArticle($user_id,$body["title"],"tmp-$user_id",$body["key-words"],$body["descr"]);
         } else {
             $this->pdo->update_arinfo($article[0]["id_clanek"],$body["title"],$body["key-words"],$body["descr"]);
         }

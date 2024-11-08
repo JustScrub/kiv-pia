@@ -113,7 +113,7 @@ class DB_Model
 
     public function get_tmp_article($user_id){
         $params=array($user_id);
-        return $this->select_query(TB_ARTICLE,$params,"id_autor=? and nazev_souboru='tmp'");
+        return $this->select_query(TB_ARTICLE,$params,"id_autor=? and nazev_souboru='tmp-$user_id'");
     }
 
     public function get_article($id){

@@ -20,21 +20,22 @@ def test_add_new():
                              headers={'Authorization': get_id("adar")},
                              json={"title": "Add article test", "descr": "Test", "key-words": "Test"})
     assert response.status_code == 200
-    response = requests.get(f'{HOST}/api.php?service=get_user_articles&id=8', 
+    response = requests.get(f'{HOST}/api.php?service=get_user_articles&login=adar', 
                             headers={'Authorization': get_id("adar")})
+    assert response.status_code == 200
     j = response.json()
     assert isinstance(j, list), response.text
     assert len(j) == 1, response.text
-    assert is_subdict(j[0], {
+    assert is_subdict({
         "title": "Add article test",
         "descr": "Test",
         "key-words": "Test",
-        "author_id": 8,
+        "author_id": 9,
         "approved": "pending"
-    }), response.text
+    },j[0]), response.text
     id = j[0]["id"]
     # delete the article
-    response = requests.get(f'{HOST}/api.php?service=delete_article&id={id}', 
+    response = requests.delete(f'{HOST}/api.php?service=delete_article&id={id}', 
                             headers={'Authorization': get_id("adar")})
     
 def test_add_after_add():
@@ -45,26 +46,26 @@ def test_add_after_add():
                              headers={'Authorization': get_id("adar")},
                              json={"title": "Ovewritten", "descr": "OW", "key-words": "OW"})
     assert response.status_code == 200
-    response = requests.get(f'{HOST}/api.php?service=get_user_articles&id=8', 
+    response = requests.get(f'{HOST}/api.php?service=get_user_articles&login=adar', 
                             headers={'Authorization': get_id("adar")})
     j = response.json()
     assert len(j) == 1
-    assert is_subdict(j[0], {
+    assert is_subdict({
         "title": "Ovewritten",
         "descr": "OW",
         "key-words": "OW",
-        "author_id": 8,
+        "author_id": 9,
         "approved": "pending"
-    })
+    },j[0])
     id = j[0]["id"]
     # delete the article
-    response = requests.get(f'{HOST}/api.php?service=delete_article&id={id}', 
+    response = requests.delete(f'{HOST}/api.php?service=delete_article&id={id}', 
                             headers={'Authorization': get_id("adar")})
 
 def test_upload_no_param():
     response = requests.get(f'{HOST}/api.php?service=upload_article', 
                             headers={'Authorization': get_id("adar")})
-    assert response.status_code == 400
+    assert response.status_code == 400, response.text
     assert "Missing request body" in response.json()["message"]
 
 def test_upload_no_add():
@@ -73,7 +74,7 @@ def test_upload_no_add():
     response = requests.post(f'{HOST}/api.php?service=upload_article', 
                                  headers={'Authorization': get_id("adar"), 'Content-Type': 'application/pdf'},
                                  data=data)
-    assert response.status_code == 404
+    assert response.status_code == 404, response.text
     assert  "No article data found. Add article information first" in response.json()["message"]
 
 def test_upload_ok():
@@ -92,7 +93,7 @@ def test_upload_ok():
     fname = [f for f in ardir_content if f not in ardir_content_before][0]
     with open("../Articles/" + fname, "rb") as f:
         assert f.read() == data
-    response = requests.get(f'{HOST}/api.php?service=get_user_articles&id=8', 
+    response = requests.get(f'{HOST}/api.php?service=get_user_articles&login=adar', 
                             headers={'Authorization': get_id("adar")})
     j = response.json()
     assert len(j) == 1
@@ -104,7 +105,7 @@ def test_upload_ok():
     assert response.content == data
 
     # delete the article
-    response = requests.get(f'{HOST}/api.php?service=delete_article&id={id}', 
+    response = requests.delete(f'{HOST}/api.php?service=delete_article&id={id}', 
                             headers={'Authorization': get_id("adar")})
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ def test_no_param():
     assert "Missing query parameter" in response.json()["message"]
 
 def test_noexist():
-    response = requests.get(f'{HOST}/api.php?service=get_user_articles&id=noexist', 
+    response = requests.get(f'{HOST}/api.php?service=get_user_articles&login=noexist', 
                             headers={'Authorization': get_id()})
     assert response.status_code == 404, response.text
     assert "User not found" in response.json()["message"]
@@ -21,7 +21,8 @@ def test_noexist():
     {"id": 4, "articles": [6, 7], "appr": ["pending", "no"]},
     ])
 def test_ok(ar_data):
-    response = requests.get(f'{HOST}/api.php?service=get_user_articles&id={ar_data["id"]}', 
+    logins = ["superadmin", "admin@test.com", "test", "banned@test.com"]
+    response = requests.get(f'{HOST}/api.php?service=get_user_articles&login={logins[ar_data["id"]-1]}', 
                             headers={'Authorization': get_id()})
     assert response.status_code == 200
     try:
@@ -44,8 +45,8 @@ def test_ok(ar_data):
 if __name__ == "__main__":
     test_no_param()
     test_noexist()
-    test_ok({"id": 1, "articles": [5], "appr": ["yes"]})
-    test_ok({"id": 2, "articles": [4], "appr": ["pending"]})
-    test_ok({"id": 3, "articles": [1, 2, 3], "appr": ["pending", "yes", "no"]})
-    test_ok({"id": 4, "articles": [6, 7], "appr": ["pending", "no"]})
+    test_ok({"id": "superadmin", "articles": [5], "appr": ["yes"]})
+    test_ok({"id": "admin@test.com", "articles": [4], "appr": ["pending"]})
+    test_ok({"id": "test", "articles": [1, 2, 3], "appr": ["pending", "yes", "no"]})
+    test_ok({"id": "banned@test.com", "articles": [6, 7], "appr": ["pending", "no"]})
     print("All tests passed!")

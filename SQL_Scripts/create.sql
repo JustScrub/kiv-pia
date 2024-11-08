@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `clanek` (
     `nazev_souboru` VARCHAR(100) UNIQUE NOT NULL,
     `klicova_slova` VARCHAR(200),
     `popis` VARCHAR(2000),
-    `schvalen` INT NOT NULL CHECK (`schvalen` in (0,1,2)), -- 0: neposouzen, 1: schvalen, 2: zamitnut
+    `schvalen` INT NOT NULL DEFAULT 0 CHECK (`schvalen` in (0,1,2)), -- 0: neposouzen, 1: schvalen, 2: zamitnut
     `datum_schvaleni` DATE,
     INDEX `fk_clanku_uzivatele_idx` (`id_autor` ASC),
     CONSTRAINT `fk_clanku_uzivatele`
