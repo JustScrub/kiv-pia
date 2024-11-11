@@ -31,6 +31,11 @@ def test_ok():
     assert isinstance(j, list)
     for b in ["toban0", "toban1@test.com", "toban2", "banned@test.com"]:
         assert b in j
+        # Check that user really is banned
+        response = get_id(b)
+        assert isinstance(response, dict), response
+        assert "message" in response
+        assert "User is banned" in response["message"]
     for b in ["superadmin", "noexist"]:
         assert b not in j
 

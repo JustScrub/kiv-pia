@@ -429,15 +429,15 @@ class Api
         $key_rights = $this->pdo->select_query(VW_API_RIGHTS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["prava"];
         foreach($body as $login){
             //can only ban users with lower rights
-            $rights = $this->pdo->get_user_data($login);
-            if(!$rights){
+            $user_data = $this->pdo->get_user_data($login);
+            if(!$user_data){
                 continue;
             }
-            $rights = array(0,20,10,5,2)[$rights["id_pravo"]];
+            $rights = array(0,20,10,5,2)[$user_data["id_pravo"]];
             if($key_rights <= $rights){
                 continue;
             }
-            $this->pdo->ban_user($login);
+            $this->pdo->ban_user($user_data["id_uzivatel"]);
             $banned[] = $login;
         }
         return $banned;
