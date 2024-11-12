@@ -599,6 +599,9 @@ class Api
                 if($msg == "OK"){
                     break;
                 }
+                if($msg == "OTP not found"){
+                    break;
+                }
             } catch (\WebSocket\ConnectionException $e){
                 $ex_text = "OTP: Nastala výjimka při komunikaci s WebSocket serverem: ".$e->getCode()
                     ."\tText: ".$e->getMessage();
@@ -606,7 +609,7 @@ class Api
             }
         }
         $ws->close();
-        return "OK";
+        return $msg;
     }
 
 

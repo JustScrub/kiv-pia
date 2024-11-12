@@ -359,6 +359,11 @@ class DB_Model
         return $key;
     }
 
+    public function get_api_key_by_id($id){
+        $params = array($id);
+        return $this->select_query(TB_API_KEYS,$params,"id_uzivatel=?");
+    }
+
     public function verify_key($key, $rights){
         $params = array($key);
         $res = $this->select_query(VW_API_RIGHTS,$params,"klic=?");

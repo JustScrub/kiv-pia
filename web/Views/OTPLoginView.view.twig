@@ -2,32 +2,41 @@
 
 
 {% block BODY %}
-    centered div with OTP
-
-    <div>
+{% if error %}
+    <div class="alert alert-danger">
+        {% if lang == "cz" %}
+        Chyba: Nesprávný příchozí verifikační kód z API
+        {% else %}
+        Error: Invalid incoming verification code from API
+        {% endif %}
+    </div>
+{% else %}
+    <div id="otp-div">
         <span class="otp-prompt">
         {% if lang == "cz" %}
         Zašlete následující JSON objekt obsahující jednorázové heslo na POST API 
         {% else %}
         Send the following JSON object including the one-time password to the POST API at
-        /api.php?service=otp-login
         {% endif %}
+        /api.php?service=otp_login
         </span>
 
-        <div class="otp-json">
+        <pre><code>
         {
-            "otp": {{ otp }}
+            "otp": "{{ otp }}"
         }
-        </div>
+        </code></pre>
     </div>
 
     <div hidden>
         <form method="POST" id="otp-login-form">
             <input type="hidden" name="otp-token" value="{{ otp }}">
             <input type="hidden" name="otp-signature" id="otp-signature" value="">
+            <input type="hidden" name="otp-user-id" id="otp-user-id" value="">
             <input type="submit" name="otp-submit" id="otp-submit">
         </form>
     </div>
+{% endif %}
 {% endblock %}
 
 {% block CSS %}
@@ -35,6 +44,7 @@
 {% endblock %}
 
 {% block JS_Script %}
+{% if not error %}
 <script>
     var ws_client = WebSocket({{ ws_client }});
     //var i = setInterval( ()=>{ws_client.send("web-otp: {{ otp }}")}, 1000);
@@ -45,19 +55,31 @@
         data = JSON.parse(evt.data)
         if(data.status == "OTP recieved") {
             if(data.otp != "{{ otp }}"){
-                return;
                 console.error("Recieved wrong OTP: " + data.otp + ", expected: {{ otp }}")
+                return;
             }
             //clearInterval(i);
             return;
         }
 
         if(data.status == "OTP forward") {
+            if(data.otp != "{{ otp }}"){
+                console.error("Forwarded wrong OTP: " + data.otp + ", expected: {{ otp }}")
+                return;
+            }
             ws_client.close()
             $("#otp-signature").val(data.signature);
+            $("#otp-user-id").val(data.user_id);
             $("#otp-submit").click();
+        }
+
+        if(data.status == "OTP timeout") {
+            console.error("OTP timeout")
+            $("#otp-div").html("Communication Timed Out. Try again.").addClass("alert alert-danger")
+            ws_client.close()
         }
 
     }
 </script>
+{% endif %}
 {% endblock %}

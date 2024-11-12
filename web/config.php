@@ -40,7 +40,7 @@ const DB_LOGIN = "root";
 const DB_PASS = "rootroot";
 
 const WSS_HOST = "localhost";
-const WSS_PORT = 8080;
+const WSS_PORT = 8765;
 
 const TB_USERS = "uzivatel";
 const TB_RIGHTS = "pravo";
