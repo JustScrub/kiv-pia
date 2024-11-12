@@ -39,6 +39,9 @@ const DB_NAME = "kiv_pia";
 const DB_LOGIN = "root";
 const DB_PASS = "rootroot";
 
+const WSS_HOST = "localhost";
+const WSS_PORT = 8080;
+
 const TB_USERS = "uzivatel";
 const TB_RIGHTS = "pravo";
 const TB_ARTICLE = "clanek";

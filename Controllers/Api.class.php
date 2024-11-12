@@ -2,6 +2,7 @@
 
 namespace conference\Controllers;
 use conference\Models\DB_Model as DB_Model;
+use conference\Models\Logger_Model as Logger_Model;
 use Attribute;
 use OpenApi\Attributes as OAT;
 
@@ -555,6 +556,56 @@ class Api
         $this->pdo->update_arfilepath($article[0]["id_clanek"],$filename);
         // TODO: check if $body contains the file...
         file_put_contents(ARTICLES_DIR.$filename,$body);
+        return "OK";
+    }
+
+    #[OAT\Post(path: "/api.php?service=otp_login", description: "Login to website using OTP")]
+    #[OAT\RequestBody(
+           content: new OAT\MediaType(
+                mediaType: "application/json",
+                schema: new OAT\Schema(
+                    type: "object",
+                    properties: [
+                        new OAT\Property(property: "otp", type: "string"),
+                    ],
+                    required: ["otp"]
+           ))
+    )]
+    #[OAT\Response(response: "200", description: "OK", 
+                content: new OAT\MediaType(
+                    mediaType: "application/json",
+                    schema: new OAT\Schema(
+                        type: "string",
+                ))
+    )]
+    #[OAT\Response(response: "401", description: "Unauthorized", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
+    #[ApiMeta(2)]
+    public function otp_login($body){
+        $otp = $body["otp"];
+        $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
+        $ws_data = array(
+            "otp" => $otp,
+            "user_id" => $user_id,
+            "signature" => base64_encode(hash_hmac("sha256",$otp,$_SERVER["HTTP_AUTHORIZATION"],true))
+        );
+        $ws_data = json_encode($ws_data);
+        $ws = new WebSocket\Client("ws://".WSS_HOST.":".WSS_PORT);
+        while(true){
+            try {
+                $ws->text($ws_data);
+                $msg = $ws->receive();
+                if($msg == "OK"){
+                    break;
+                }
+            } catch (\WebSocket\ConnectionException $e){
+                $ex_text = "OTP: Nastala výjimka při komunikaci s WebSocket serverem: ".$e->getCode()
+                    ."\tText: ".$e->getMessage();
+                (new Logger_Model())->log($ex_text)->destruct();
+            }
+        }
+        $ws->close();
         return "OK";
     }
 

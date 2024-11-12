@@ -34,7 +34,7 @@ class DB_Model
             return null;
 
         } catch (PDOException $ex){
-            $ex_text = "Nastala výjimka: ". $ex->getCode() ."\t"
+            $ex_text = "PDO: Nastala výjimka: ". $ex->getCode() ."\t"
                 ."Text: ". $ex->getMessage();
 
             $this->last_err = $ex->getCode();

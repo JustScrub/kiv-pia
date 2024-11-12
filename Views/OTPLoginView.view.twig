@@ -1,0 +1,63 @@
+{% extends "Outline.view.twig" %}
+
+
+{% block BODY %}
+    centered div with OTP
+
+    <div>
+        <span class="otp-prompt">
+        {% if lang == "cz" %}
+        Zašlete následující JSON objekt obsahující jednorázové heslo na POST API 
+        {% else %}
+        Send the following JSON object including the one-time password to the POST API at
+        /api.php?service=otp-login
+        {% endif %}
+        </span>
+
+        <div class="otp-json">
+        {
+            "otp": {{ otp }}
+        }
+        </div>
+    </div>
+
+    <div hidden>
+        <form method="POST" id="otp-login-form">
+            <input type="hidden" name="otp-token" value="{{ otp }}">
+            <input type="hidden" name="otp-signature" id="otp-signature" value="">
+            <input type="submit" name="otp-submit" id="otp-submit">
+        </form>
+    </div>
+{% endblock %}
+
+{% block CSS %}
+
+{% endblock %}
+
+{% block JS_Script %}
+<script>
+    var ws_client = WebSocket({{ ws_client }});
+    //var i = setInterval( ()=>{ws_client.send("web-otp: {{ otp }}")}, 1000);
+
+    ws_client.onopen = (evt) => {ws_client.send("web-otp: {{ otp }}")}
+
+    ws_client.onmessage = (evt) => {
+        data = JSON.parse(evt.data)
+        if(data.status == "OTP recieved") {
+            if(data.otp != "{{ otp }}"){
+                return;
+                console.error("Recieved wrong OTP: " + data.otp + ", expected: {{ otp }}")
+            }
+            //clearInterval(i);
+            return;
+        }
+
+        if(data.status == "OTP forward") {
+            ws_client.close()
+            $("#otp-signature").val(data.signature);
+            $("#otp-submit").click();
+        }
+
+    }
+</script>
+{% endblock %}
