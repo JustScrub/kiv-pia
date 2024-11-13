@@ -34,14 +34,13 @@ const CONTROLLER_LIST = array(
 
 );
 
-// DATABASE
-const DB_SERVER = "localhost";
-const DB_NAME = "kiv_pia";
-const DB_LOGIN = "root";
-const DB_PASS = "rootroot";
+define("DB_SERVER",getenv("DB_SERVER"));
+define("DB_NAME",getenv("DB_NAME"));
+define("DB_LOGIN",getenv("DB_LOGIN"));
+define("DB_PASS",getenv("DB_PASS"));
 
-const WSS_HOST = "localhost";
-const WSS_PORT = 8765;
+define("WSS_HOST",getenv("WSS_HOST"));
+define("WSS_PORT",getenv("WSS_PORT"));
 
 const TB_USERS = "uzivatel";
 const TB_RIGHTS = "pravo";

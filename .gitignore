@@ -1,3 +1,4 @@
 web/Composer/vendor/
 LOG.txt
 web/Articles/*
+.env

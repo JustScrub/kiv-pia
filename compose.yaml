@@ -1,0 +1,81 @@
+services:
+  pia_web:
+    container_name: pia_web
+    build:
+      context: .  
+      dockerfile: Dockerfile_apache
+    volumes:
+    # dependencies MUST already be installed (using composer install)
+      - ./web:/var/www/html
+    networks:
+      - pie-network
+    ports:
+      - ${WEB_PORT}:80
+    environment:
+      DB_SERVER: pia_mysql_db
+      DB_NAME: ${DB_NAME}
+      DB_LOGIN: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      WSS_HOST: pia_websockets
+      WSS_PORT: 8765
+    env_file:
+      - .env
+    depends_on:
+      - pia_mysql_db
+
+  pia_mysql_db:
+    container_name: pia_mysql_db
+    image: mysql:latest
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      LANG: C.UTF-8              # a bit of a hack, maybe there is a better way? https://github.com/docker-library/mysql/issues/131
+    networks:
+      - pia-network
+    volumes:
+    # mounting .sql or .sh files to docker-entrypoint-initdb.d will run the sql or sh files on the first run
+    # the order of the files is important! (alphabetical order)
+    # https://hub.docker.com/_/mysql
+      - SQL_Scripts/create.sql:/docker-entrypoint-initdb.d/01.sql
+    # mount the volume to persist the data
+      - pia_mysql_data:/var/lib/mysql
+
+  pia_websockets:
+    container_name: pia_websockets
+    build:
+      context: .  
+      dockerfile: Dockerfile_websockets
+    volumes:
+      - ./websockets-otp:/app
+    networks:
+      - pia-network
+
+  pia_phpmyadmin:
+    container_name: pia_phpmyadmin
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - ${PMA_PORT}:80
+    environment:
+      PMA_HOST: pia_mysql_db
+      PMA_PORT: 3306 
+    networks:
+      - pia-network
+    depends_on:
+      - pia_mysql_db
+
+volumes:
+  pia_mysql_data:
+    name: pia_mysql_data
+    labels:
+      name: pia_mysql_data
+      container: pia_mysql_db
+
+networks:
+  pia-network:
+    name: pia-network
+    driver: bridge
