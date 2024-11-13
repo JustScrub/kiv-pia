@@ -591,7 +591,7 @@ class Api
             "signature" => base64_encode(hash_hmac("sha256",$otp,$_SERVER["HTTP_AUTHORIZATION"],true))
         );
         $ws_data = json_encode($ws_data);
-        $ws = new WebSocket\Client("ws://".WSS_HOST.":".WSS_PORT);
+        $ws = new \WebSocket\Client("ws://".WSS_HOST.":".WSS_PORT);
         while(true){
             try {
                 $ws->text($ws_data);

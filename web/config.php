@@ -21,6 +21,7 @@ const CONTROLLER_LIST = array(
     "intro" => array("file_name" => CONTR_DIR."Intro.controller.class.php", "class_name" => "Intro.controller"),
     "test"  => array("file_name" => CONTR_DIR."Test.class.php", "class_name" => \conference\Controllers\Test::class),
     "registrace" => array("file_name" => CONTR_DIR."Register.class.php", "class_name" => \conference\Controllers\Register::class),
+    "otp_login" => array("file_name" => CONTR_DIR."OTPLoginController.class.php", "class_name" => \conference\Controllers\OTPLoginController::class),
     "sprava_uzivatelu" => array("file_name" => CONTR_DIR."UserManagement.class.php", "class_name" => \conference\Controllers\UserManagement::class),
     "sprava_adminu" => array("file_name" => CONTR_DIR."AdminManagement.class.php", "class_name" => \conference\Controllers\AdminManagement::class),
     "pridat_clanek" => array("file_name" => CONTR_DIR."AddArticle.class.php", "class_name" => \conference\Controllers\AddArticle::class),

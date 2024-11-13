@@ -5,9 +5,9 @@
 {% if error %}
     <div class="alert alert-danger">
         {% if lang == "cz" %}
-        Chyba: Nesprávný příchozí verifikační kód z API
+        Chyba: {{ err_reason_cz}}
         {% else %}
-        Error: Invalid incoming verification code from API
+        Error: {{ err_reason_en}}
         {% endif %}
     </div>
 {% else %}
@@ -46,13 +46,19 @@
 {% block JS_Script %}
 {% if not error %}
 <script>
-    var ws_client = WebSocket({{ ws_client }});
-    //var i = setInterval( ()=>{ws_client.send("web-otp: {{ otp }}")}, 1000);
+    var ws_client = new WebSocket("{{ ws_client }}");
+    //var i = setInterval( ()=>{ws_client.send('{"web-otp": "{{ otp }}"}')}, 1000);
 
-    ws_client.onopen = (evt) => {ws_client.send("web-otp: {{ otp }}")}
+    ws_client.onopen = (evt) => {ws_client.send('{"web-otp": "{{ otp }}"}')}
 
     ws_client.onmessage = (evt) => {
         data = JSON.parse(evt.data)
+
+        if(data.status == "OTP in use") {
+            location.reload();
+            return;
+        }
+
         if(data.status == "OTP recieved") {
             if(data.otp != "{{ otp }}"){
                 console.error("Recieved wrong OTP: " + data.otp + ", expected: {{ otp }}")

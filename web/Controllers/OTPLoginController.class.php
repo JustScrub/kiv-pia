@@ -8,7 +8,7 @@ class OTPLoginController extends AController
     public function __construct($twig, $pdo)
     {
         parent::__construct($twig, $pdo);
-        $this->VIEW = "OTPLoginController.view.twig";
+        $this->VIEW = "OTPLoginView.view.twig";
         $this->titles = array("cz" => "OTP přihlášení", "en" => "OTP Login");
     }
 
@@ -19,12 +19,21 @@ class OTPLoginController extends AController
         $this->view_data["error"] = false;
         
         if(isset($_POST["otp-submit"])){
-            $otp = $_POST["otp"];
+            $otp = $_POST["otp-token"];
             $user_id = $_POST["otp-user-id"];
             $signature = $_POST["otp-signature"];
 
             # validate the signatrue
             $key = $this->pdo->get_api_key_by_id($user_id);
+            if($key == null){
+                $this->view_data["error"] = true;
+                $this->view_data["err_reason_en"] = "User not found";
+                $this->view_data["err_reason_cz"] = "Uživatel nenalezen";
+                echo $this->twig->render($this->VIEW,$this->view_data);
+                return;
+            }
+            $key = $key["klic"];
+            echo $key;
             $sig = base64_encode(hash_hmac("sha256",$otp,$key,true));
             if($sig == $signature){
                 $user = $this->pdo->select_query(TB_USERS, array($user_id), "id_uzivatel");
@@ -33,8 +42,10 @@ class OTPLoginController extends AController
                 return;
             }
             $this->view_data["error"] = true;
+            $this->view_data["err_reason_en"] = "Invalid incoming verification code from API";
+            $this->view_data["err_reason_cz"] = "Nesprávný příchozí verifikační kód z API";
         }
-        $otp = $bin2hex(random_bytes(4));
+        $otp = bin2hex(random_bytes(4));
         $this->view_data["otp"] = $otp;
         echo $this->twig->render($this->VIEW,$this->view_data);
     }

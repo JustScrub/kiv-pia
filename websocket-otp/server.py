@@ -1,5 +1,5 @@
 import asyncio, json
-from websockets import serve
+import websockets
 
 class otp_data:
     def __init__(self, otp):
@@ -9,6 +9,11 @@ class otp_data:
 CONNS = dict()
 
 async def web_client(websocket, otp):
+    
+    if otp in CONNS:
+        await websocket.send(json.dumps({"status": "OTP in use"}))
+        return
+
     CONNS[otp] = otp_data(otp)
     await websocket.send(json.dumps({"status": "OTP recieved", "otp": otp}))
 
@@ -30,11 +35,17 @@ async def web_client(websocket, otp):
 
 async def handler(websocket):
     data = await websocket.recv()
+    print(f"Recieved: {data}")
     data = json.loads(data)
 
     if "web-otp" in data:
         # Web client
-        await web_client(websocket, data["web-otp"])
+        try:
+            await web_client(websocket, data["web-otp"])
+        except websockets.exceptions.ConnectionClosed:
+            #print(f"Connection {data['web-otp']} closed")
+            del CONNS[data["web-otp"]]
+            pass
     elif all(x in data for x in ["signature", "user_id", "otp"]):
         # API client
         otp = data["otp"]
@@ -50,5 +61,8 @@ async def handler(websocket):
             await websocket.send("OTP not found")
 
 async def main():
-    async with serve(handler, "", 8765):
+    async with websockets.serve(handler, "", 8765):
         await asyncio.Future()
+
+if __name__ == "__main__":
+    asyncio.run(main())
