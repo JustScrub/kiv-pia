@@ -7,6 +7,8 @@ use conference\Models\Session_Model;
 abstract class ALoggedController extends AController
 {
 
+    protected $min_rights;
+    
     public function __construct($twig, $pdo)
     {
         parent::__construct($twig, $pdo);

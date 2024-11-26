@@ -14,7 +14,7 @@ class DB_Model
 
     public function __construct()
     {
-        $this->pdo = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_NAME, "root");
+        $this->pdo = new PDO("mysql:host=".DB_SERVER.";dbname=".DB_NAME, DB_LOGIN, DB_PASS);
         $this->pdo->exec("set names utf8");
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }

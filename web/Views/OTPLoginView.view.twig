@@ -81,7 +81,7 @@
 
         if(data.status == "OTP timeout") {
             console.error("OTP timeout")
-            $("#otp-div").html("Communication Timed Out. Try again.").addClass("alert alert-danger")
+            $("#otp-div").html("{{ lang == "cz"? "Vypršel čas na přihlášení. Zkuste to znovu." : "Communication Timed Out. Try again." }}").addClass("alert alert-danger")
             ws_client.close()
         }
 

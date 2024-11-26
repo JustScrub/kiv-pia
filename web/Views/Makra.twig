@@ -18,6 +18,9 @@
         <input type="submit" class="btn btn-success my-2 my-sm-0" value="Login" name="log_but">
     </form>
     <div class="dropdown-item">
+        <a href="index.php?page=otp_login">{{ lang == "cz"? "Přihlášení pomocí OTP" : "OTP login" }}</a>
+    </div>
+    <div class="dropdown-item">
         {{ lang == "cz"? "Nemáte účet?" : "Don't have an account?" }} <a href="index.php?page=registrace">{{ lang == "cz"? "Registrovat" : "Register" }}</a>
     </div>
 

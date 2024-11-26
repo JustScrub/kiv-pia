@@ -25,18 +25,17 @@ class OTPLoginController extends AController
 
             # validate the signatrue
             $key = $this->pdo->get_api_key_by_id($user_id);
-            if($key == null){
+            if(!$key){
                 $this->view_data["error"] = true;
                 $this->view_data["err_reason_en"] = "User not found";
                 $this->view_data["err_reason_cz"] = "Uživatel nenalezen";
                 echo $this->twig->render($this->VIEW,$this->view_data);
                 return;
             }
-            $key = $key["klic"];
-            echo $key;
+            $key = $key[0]["klic"];
             $sig = base64_encode(hash_hmac("sha256",$otp,$key,true));
             if($sig == $signature){
-                $user = $this->pdo->select_query(TB_USERS, array($user_id), "id_uzivatel");
+                $user = $this->pdo->select_query(TB_USERS, array($user_id), "id_uzivatel=?")[0];
                 $this->session->login($user);
                 header("Location: index.php?page=uvod");
                 return;

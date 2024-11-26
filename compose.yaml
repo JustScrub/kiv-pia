@@ -8,7 +8,7 @@ services:
     # dependencies MUST already be installed (using composer install)
       - ./web:/var/www/html
     networks:
-      - pie-network
+      - pia-network
     ports:
       - ${WEB_PORT}:80
     environment:
@@ -16,7 +16,8 @@ services:
       DB_NAME: ${DB_NAME}
       DB_LOGIN: ${DB_USER}
       DB_PASS: ${DB_PASS}
-      WSS_HOST: pia_websockets
+      WSS_HOST_API: pia_websockets
+      WSS_HOST: ${WSS_HOST}
       WSS_PORT: 8765
     env_file:
       - .env
@@ -40,7 +41,7 @@ services:
     # mounting .sql or .sh files to docker-entrypoint-initdb.d will run the sql or sh files on the first run
     # the order of the files is important! (alphabetical order)
     # https://hub.docker.com/_/mysql
-      - SQL_Scripts/create.sql:/docker-entrypoint-initdb.d/01.sql
+      - ./SQL_Scripts/create.sql:/docker-entrypoint-initdb.d/01.sql
     # mount the volume to persist the data
       - pia_mysql_data:/var/lib/mysql
 
@@ -50,7 +51,9 @@ services:
       context: .  
       dockerfile: Dockerfile_websockets
     volumes:
-      - ./websockets-otp:/app
+      - ./websocket-otp:/app
+    ports:
+      - 8765:8765
     networks:
       - pia-network
 

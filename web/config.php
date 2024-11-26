@@ -40,6 +40,7 @@ define("DB_LOGIN",getenv("DB_LOGIN"));
 define("DB_PASS",getenv("DB_PASS"));
 
 define("WSS_HOST",getenv("WSS_HOST"));
+define("WSS_HOST_API",getenv("WSS_HOST_API")); # the host for the API, may be docker network address
 define("WSS_PORT",getenv("WSS_PORT"));
 
 const TB_USERS = "uzivatel";

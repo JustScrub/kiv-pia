@@ -32,7 +32,7 @@
             </div>
             <div class="col-lg-2" id="{{ clanek.id_clanek ~ "-formdiv" }}">
                 {% if not clanek.schvalen %}
-                <button onclick="edit_on({{ clanek.id_clanek }})" class="btn btn-dark float-lg-right edit_but">Editovat</button>
+                <button onclick="edit_on({{ clanek.id_clanek }})" class="btn btn-dark float-lg-right edit_but">{{ lang == "cz"? "Editovat" : "Edit" }}</button>
                 {% endif %}
             </div>
         </div>

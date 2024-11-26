@@ -18,6 +18,13 @@ abstract class AController
     //TODO: TEST language switch
     const LANG_SWITCH_NAME = "lang_switch";
 
+    protected $twig;
+    protected $pdo;
+    protected $session;
+    protected $VIEW;
+    protected $view_data;
+    protected $titles;
+
     /**
      * @param $twig Environment
      * @param $pdo DB_Model

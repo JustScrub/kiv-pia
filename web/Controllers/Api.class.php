@@ -65,6 +65,8 @@ function getAuthorizationHeader(){
 #[OAT\Info(title: "Conference API", version: "0.1")]
 class Api
 {
+    private $pdo;
+
     public function __construct($pdo){
         $this->pdo = $pdo;
         $_SERVER["HTTP_AUTHORIZATION"] = getAuthorizationHeader();
@@ -553,6 +555,8 @@ class Api
         }
         $filename = hash("sha256",$user_id . $article[0]["nazev"],true);
         $filename = base64_encode($filename).".pdf";
+        $filename = strtr($filename,"+/","-_");
+        $filename = str_replace("=","",$filename);
         $this->pdo->update_arfilepath($article[0]["id_clanek"],$filename);
         // TODO: check if $body contains the file...
         file_put_contents(ARTICLES_DIR.$filename,$body);
@@ -591,7 +595,7 @@ class Api
             "signature" => base64_encode(hash_hmac("sha256",$otp,$_SERVER["HTTP_AUTHORIZATION"],true))
         );
         $ws_data = json_encode($ws_data);
-        $ws = new \WebSocket\Client("ws://".WSS_HOST.":".WSS_PORT);
+        $ws = new \WebSocket\Client("ws://".WSS_HOST_API.":".WSS_PORT);
         while(true){
             try {
                 $ws->text($ws_data);

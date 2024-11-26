@@ -1,6 +1,6 @@
 import requests
 
-HOST = 'http://localhost:8880/www'
+HOST = 'http://localhost:8880/'
 
 def get_id(login="test",passw="test",exp=3600):
     response = requests.post(f'{HOST}/api.php?service=get_auth_key', json={'login': login, 'pass': passw, 'expiration': exp})
