@@ -7,9 +7,9 @@ use conference\Models\Session_Model;
 abstract class ALoggedController extends AController
 {
 
-    protected $min_rights;
+    protected int $min_rights;
     
-    public function __construct($twig, $pdo)
+    public function __construct(Twig\Environment $twig, conference\Models\DB_Model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->view_data["reason"] = "none";

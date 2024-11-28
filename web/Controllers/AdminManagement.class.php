@@ -7,7 +7,7 @@ use conference\Models\Session_Model;
 class AdminManagement extends AccountManager
 {
 
-    public function __construct($twig, $pdo)
+    public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->ofWhatManagement = array("cz" => "ADMINŮ", "en" => "ADMINS");

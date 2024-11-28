@@ -4,12 +4,16 @@ namespace conference\Controllers;
 
 class AccountManager extends ALoggedController
 {
-    const DELETE_BUT_NAME = "delete";
-    const EDIT_BUT_NAME = "set_role";
-    const USER_ID_NAME = "id_uzivatel";
-    const RIGHT_NAME = "prava_select";
+    const string DELETE_BUT_NAME = "delete";
+    const string EDIT_BUT_NAME = "set_role";
+    const string USER_ID_NAME = "id_uzivatel";
+    const string RIGHT_NAME = "prava_select";
 
-    public function __construct($twig, $pdo)
+    private string $get_all;
+    private string $def_view;
+    private array $ofWhatManagement;
+
+    public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->get_all = "";

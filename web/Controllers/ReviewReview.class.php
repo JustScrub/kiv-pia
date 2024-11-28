@@ -5,7 +5,7 @@ namespace conference\Controllers;
 class ReviewReview extends ALoggedController
 {
 
-    public function __construct($twig, $pdo)
+    public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->min_rights = 2;

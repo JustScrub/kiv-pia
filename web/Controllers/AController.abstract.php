@@ -18,18 +18,19 @@ abstract class AController
     //TODO: TEST language switch
     const LANG_SWITCH_NAME = "lang_switch";
 
-    protected $twig;
-    protected $pdo;
-    protected $session;
-    protected $VIEW;
-    protected $view_data;
-    protected $titles;
+    protected Twig\Environment $twig;
+    protected DB_Model $pdo;
+    protected Session_Model $session;
+    protected string $VIEW;
+    protected array $view_data;
+    protected array $titles;
+
 
     /**
      * @param $twig Environment
      * @param $pdo DB_Model
      */
-    public function __construct($twig,$pdo){
+    public function __construct(Twig\Environment $twig, DB_model $pdo){
         $this->twig = $twig;
         $this->pdo = $pdo;
         $this->session = new Session_Model;
@@ -84,7 +85,7 @@ abstract class AController
         header('Location: index.php');
     }
 
-    public function login_process(){
+    public function login_process(): int{
         if(!isset($_POST[self::LOGIN_BUTTON_NAME])) return -1;
 
         $user = $this->pdo->get_user_data($_POST[self::LOGIN_INP_NAME]);

@@ -6,8 +6,8 @@ class Logger_Model
 {
     //All functions return $this for chaining
 
-    const LOG_FILE = ROOT_DIR."/LOG.txt";
-    private $file;
+    const string LOG_FILE = ROOT_DIR."/LOG.txt";
+    private resource $file;
 
     public function __construct()
     {
@@ -16,7 +16,7 @@ class Logger_Model
         return $this;
     }
 
-    public function log($log){
+    public function log($log): Logger_Model{
         $date = gmdate("Y-m-d H:i:s");
         fwrite($this->file, "$date\t$log\n");
 

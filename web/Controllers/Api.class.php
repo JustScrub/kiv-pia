@@ -65,14 +65,14 @@ function getAuthorizationHeader(){
 #[OAT\Info(title: "Conference API", version: "0.1")]
 class Api
 {
-    private $pdo;
+    private DB_Model $pdo;
 
-    public function __construct($pdo){
+    public function __construct(DB_Model $pdo){
         $this->pdo = $pdo;
         $_SERVER["HTTP_AUTHORIZATION"] = getAuthorizationHeader();
     }
 
-    public function execute_service($service){
+    public function execute_service(string $service){
         $resp = null;
         $body = null;
         do {
@@ -130,7 +130,7 @@ class Api
         echo json_encode($resp);
     }
 
-    private function params_check($service){
+    private function params_check(string $service): array{
         $reflection = new \ReflectionMethod($this,$service);
         $params = $reflection->getAttributes(OAT\Parameter::class);
         foreach($params as $param){
@@ -211,7 +211,7 @@ class Api
            ))
     )]
     #[ApiMeta(1)]
-    public function get_auth_key($body){
+    public function get_auth_key(array $body): array{
         $login = $body["login"];
         $pass = $body["pass"];
         $expiration = $body["expiration"];
@@ -258,7 +258,7 @@ class Api
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function get_user($body){
+    public function get_user(array $body): array{
         $login = $_GET["login"];
         $user = $this->pdo->get_user_data($login);
         if(!$user){
@@ -297,7 +297,7 @@ class Api
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function get_user_articles($body){
+    public function get_user_articles(array $body): array{
         $login = $_GET["login"];
         $user = $this->pdo->get_user_data($login);
         if(!$user){
@@ -338,7 +338,7 @@ class Api
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function show_article($body){
+    public function show_article(array $body): ?array{
         $id = $_GET["id"];
         $file_id = $this->pdo->get_article($id);
         if(!$file_id){
@@ -380,7 +380,7 @@ class Api
     #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function get_articles($body){
+    public function get_articles(array $body): array{
         $articles = $this->pdo->get_accepted_articles();
         $app_state = array("pending","yes","no");
         return array_reduce($articles,function($acc,$article) use ($app_state){
@@ -421,7 +421,7 @@ class Api
     #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(10)]
-    public function ban_users($body){
+    public function ban_users(array $body): array{
         if(!array_is_list($body)){
             return array(
                 "error" => "Bad Request", "status" => 400,
@@ -460,7 +460,7 @@ class Api
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function delete_article($body){
+    public function delete_article(array $body): array|string{
         $id = $_GET["id"];
         $ar_data = $this->pdo->get_article_author($id);
         if(!$ar_data || count($ar_data) == 0){
@@ -508,7 +508,7 @@ class Api
     #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function add_article($body){
+    public function add_article(array $body): string{
         $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
         // check if the user has article with "tmp" file path
         // yes -> update the title, key-words, description
@@ -543,7 +543,7 @@ class Api
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function upload_article($body){
+    public function upload_article(array $body): array|string{
         $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
         $article = $this->pdo->get_tmp_article($user_id);
         if(count($article) == 0){
@@ -586,7 +586,7 @@ class Api
     #[OAT\Response(response: "403", description: "Forbidden", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[OAT\Response(response: "400", description: "Bad Request", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
-    public function otp_login($body){
+    public function otp_login(array $body): string{
         $otp = $body["otp"];
         $user_id = $this->pdo->select_query(TB_API_KEYS,array($_SERVER["HTTP_AUTHORIZATION"]),"klic=?")[0]["id_uzivatel"];
         $ws_data = array(

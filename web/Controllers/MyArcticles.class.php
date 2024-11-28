@@ -7,11 +7,11 @@ use Couchbase\ViewQuery;
 
 class MyArcticles extends ALoggedController
 {
-    const EDIT_BUT = "edit_ok";
-    const DELETE_BUT = "ar_delete";
-    const CANCEL_BUT = "edit_cancel";
+    const string EDIT_BUT = "edit_ok";
+    const string DELETE_BUT = "ar_delete";
+    const string CANCEL_BUT = "edit_cancel";
 
-    public function __construct($twig, $pdo)
+    public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->min_rights = 4;

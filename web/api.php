@@ -6,10 +6,9 @@
 - API controller: Controllers/Api.class.php
   - services are methods of the controller
 
-- User must be logged in to use the API via login form on the website (session)
-    or via api.php?service=login&username=<username_or_email>&password=<password>
+- User must obtain an auth key to access the API via api.php?service=get_auth_key (with login/email and password)
 
-- Path api.php is the entry point for the API and requests to it return OpenAPI documentation (yaml)
+- Path api.php is the entry point for the API and requests to the path return OpenAPI documentation (yaml)
   - fs path: ./api-doc.yaml
 
 */

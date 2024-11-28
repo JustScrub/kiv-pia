@@ -5,12 +5,13 @@ require_once "Logger_Model.class.php";
 
 use PDO;
 use PDOException;
+use PDOStatement;
 use function Sodium\add;
 
 class DB_Model
 {
-    private $pdo;
-    private $last_err;
+    private PDO $pdo;
+    private string $last_err;
 
     public function __construct()
     {
@@ -23,7 +24,7 @@ class DB_Model
         return $this->last_err;
     }
 
-    private function execute_query($query,$params){
+    private function execute_query(string $query,array $params): ?PDOStatement{
         // a'); update uzivatel set jmeno='Kuba' where id_uzivatel=3; --
         try {
             $stmt = $this->pdo->prepare($query);
@@ -47,7 +48,13 @@ class DB_Model
     }
 
     //// SELECTS
-    public function select_query($tab_name,$params,$condition = "",$order_by = "",$sort_order = "ASC"){
+    public function select_query(
+        string $tab_name, 
+        array $params,
+        string $condition = "", 
+        string $order_by = "", 
+        string $sort_order = "ASC"): ?array{
+
         $q = "SELECT * FROM $tab_name".
             ($condition=="" ? "" : " WHERE $condition").
             ($order_by=="" ? "" : " ORDER BY $order_by $sort_order");
@@ -59,16 +66,16 @@ class DB_Model
         return $res->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    private function get_user_data_by_login($user_login){
+    private function get_user_data_by_login(string $user_login): ?array{
         $params = array($user_login);
         return  @$this->select_query(TB_USERS,$params,"login = ?")[0];
     }
-    private function get_user_data_by_email($user_email){
+    private function get_user_data_by_email(string $user_email): ?array{
         $params = array($user_email);
         return  @$this->select_query(TB_USERS,$params,"email = ?")[0];
     }
 
-    public function get_user_data($login_or_email){
+    public function get_user_data(string $login_or_email): ?array{
         if(filter_var($login_or_email, FILTER_VALIDATE_EMAIL)){
             return $this->get_user_data_by_email($login_or_email);
         }
@@ -77,60 +84,60 @@ class DB_Model
         }
     }
 
-    public function getSessionLoginInfo($login_or_email){
+    public function getSessionLoginInfo(string $login_or_email): ?array{
         // naming convention allows us to do this
         return $this->get_user_data($login_or_email);
     }
 
-    public function get_all_users(){
+    public function get_all_users(): ?array{
         return $this->select_query(TB_USERS,null,"id_pravo>2");
     }
-    public function get_all_admins(){
+    public function get_all_admins(): ?array{
         return $this->select_query(TB_USERS,null,"id_pravo<=2");
     }
 
-    const UNKNOWN_LOGIN = 1;
-    const WRONG_PASSWORD = 2;
-    const BANNED = 3;
-    const SUCCESS = 0;
-    public function verify_user($login_or_email,$pwd){
+    const int UNKNOWN_LOGIN = 1;
+    const int WRONG_PASSWORD = 2;
+    const int BANNED = 3;
+    const int SUCCESS = 0;
+    public function verify_user(string $login_or_email, string $pwd): int{
         $pwd_hash = $this->get_user_data($login_or_email);
         if(!$pwd_hash) return self::UNKNOWN_LOGIN;
         $pwd_hash =  $pwd_hash["heslo"];
         return $this->verify_user_knowing_hash($pwd,$pwd_hash);
     }
 
-    public function verify_user_knowing_hash($pwd,$pwd_hash){
+    public function verify_user_knowing_hash(string $pwd, string $pwd_hash): int{
         if(password_verify($pwd,$pwd_hash)) return self::SUCCESS;
         return self::WRONG_PASSWORD;
     }
 
 
-    public function articles_by_author($author_id){
+    public function articles_by_author(int $author_id): ?array{
         $params=array($author_id);
         return $this->select_query(TB_ARTICLE,$params,"id_autor=?","id_clanek", "desc");
     }
 
-    public function get_tmp_article($user_id){
+    public function get_tmp_article(int $user_id): ?array{
         $params=array($user_id);
         return $this->select_query(TB_ARTICLE,$params,"id_autor=? and nazev_souboru='tmp-$user_id'");
     }
 
-    public function get_article($id){
+    public function get_article(int $id): ?array{
         $params=array($id);
         return $this->select_query(TB_ARTICLE,$params,"id_clanek=?");
     }
 
-    public function get_article_author($id_ar){
+    public function get_article_author(int $id_ar): ?array{
         $params=array($id_ar);
         return $this->select_query(VW_AUTHORS_ARTICLES,$params, "id_clanek=?");
     }
 
-    public function get_articles_to_add_recenzenti_to(){
+    public function get_articles_to_add_recenzenti_to(): ?array{
         return $this->select_query(VW_NEED_REVIEW,null,"schvalen < 2");
     }
 
-    public function get_article_reviewers($id_article){
+    public function get_article_reviewers(int $id_article): ?array{
         $params = array($id_article);
         //SELECT * FROM `uzivatel` u WHERE u.id_uzivatel in (SELECT r.id_recenzent from `recenzenti` r WHERE r.id_clanek = $id_article);
         $q = "SELECT * FROM ".TB_USERS." u WHERE u.id_uzivatel in (SELECT r.id_recenzent from ".TB_REVIEW." r WHERE r.id_clanek = ?);";
@@ -139,7 +146,7 @@ class DB_Model
         return $res->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function get_recenzenti(){
+    public function get_recenzenti(): ?array{
         return $this->select_query(TB_USERS,null,"id_pravo<4");
     }
 
@@ -148,7 +155,7 @@ class DB_Model
      * @param $id_reviewer
      * @return array|false|null
      */
-    public function artorev($id_reviewer){
+    public function artorev(int $id_reviewer): ?array{
         $params=array($id_reviewer);
         //SELECT * FROM clanek c WHERE c.id_clanek IN (SELECT r.id_clanek FROM recenzenti r WHERE r.id_recenzent = $id_reviewer and r.hodnoceni is null);
         return $this->select_query(TB_ARTICLE." c",$params,
@@ -160,7 +167,7 @@ class DB_Model
      * gets all articles that have at least 3 reviewers (which is enough)
      * (gets the opposite set of articles from <code>get_articles_to_add_recenzenti_to</code>)
      */
-    public function arenrev(){
+    public function arenrev(): ?array{
         // (SELECT * FROM `clanek` WHERE schvalen=0) EXCEPT (SELECT * FROM nedostatek_recenzentu);
         $res = $this->execute_query("(SELECT * FROM ".TB_ARTICLE." WHERE schvalen=0) EXCEPT (SELECT * FROM ".VW_NEED_REVIEW.");",null);
         if(!$res) return null;
@@ -171,7 +178,7 @@ class DB_Model
      * ARticle ALL REViewerS
      * @param $id_ar
      */
-    public function arallrevs($id_ar){
+    public function arallrevs(int $id_ar): ?array{
         $params=array($id_ar);
         return $this->select_query(TB_REVIEW,$params,"id_clanek=?");
     }
@@ -181,7 +188,7 @@ class DB_Model
      * @param $id_ar
      * @return array|false|null
      */
-    public function arallrevs_user_info($id_ar){
+    public function arallrevs_user_info(int $id_ar): ?array{
         $params = array($id_ar);
         //select u.jmeno, u.prijmeni, r.hodnoceni, r.poznamky from uzivatel u, recenzenti r where r.id_clanek = $id_ar and r.id_recenzent = u.id_uzivatel;
         $res = $this->execute_query(
@@ -192,22 +199,22 @@ class DB_Model
         return $res->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function get_accepted_articles(){
+    public function get_accepted_articles(): ?array{
         return $this->select_query(TB_ARTICLE,null,"schvalen=1","datum_schvaleni","DESC");
     }
 
-    public function get_latest_accepted_articles(){
+    public function get_latest_accepted_articles(): ?array{
         return $this->select_query(TB_ARTICLE,null,"schvalen=1 and datum_schvaleni>DATE_SUB(NOW(),INTERVAL 1 WEEK)");
     }
     //// INSERTS
 
-    public function insert_query($tableName,$p, $insertStatement, $insertValues) {
+    public function insert_query(string $tableName, array $p, string $insertStatement, string $insertValues): bool{
         $q = "INSERT INTO $tableName($insertStatement) VALUES ($insertValues);";
         $obj = $this->execute_query($q,$p);
         return ($obj != null);
     }
 
-    private function addUser($fname,$sname,$login,$mail,$pwd,$pravo){
+    private function addUser(string $fname,string $sname,string $login,string $mail,string $pwd, int $pravo): bool{
         $insert_statement = "id_pravo, login, jmeno, prijmeni, email, heslo";
         $pwd = password_hash($pwd,PASSWORD_DEFAULT);
         $p=array($pravo,$login,$fname,$sname,$mail,$pwd);
@@ -215,11 +222,11 @@ class DB_Model
        return $this->insert_query(TB_USERS,$p,$insert_statement,$insert_values);
     }
 
-    public function register($fname,$sname,$login,$mail,$pwd){
+    public function register(string $fname,string $sname,string $login,string $mail,string $pwd): bool{
         return $this->addUser($fname,$sname,$login,$mail,$pwd,4);
     }
 
-    public function addArticle($id_author,$name,$file_name,$key_words,$desc){
+    public function addArticle(int $id_author,string $name,string $file_name,string $key_words,string $desc): bool{
         //insert into clanky(id_autor,nazev,nazev_souboru,klicova_clova,popis) values ($id_autor,$name,$file_name,$key_words,$desc)
         /*
          * insert into clanky(id_autor,nazev,nazev_souboru,klicova_clova,popis)
@@ -234,25 +241,25 @@ class DB_Model
         return $this->insert_query(TB_ARTICLE,$p,$insert_statement,$insert_values);
     }
 
-    public function insert_recenzent($id_clanek,$id_recenzent){
+    public function insert_recenzent(int $id_clanek,int $id_recenzent): bool{
         $statement = "id_clanek,id_recenzent";
         $p=array($id_clanek,$id_recenzent);
         $values = "?,?";
         return $this->insert_query(TB_REVIEW,$p,$statement,$values);
     }
     //// UPDATES
-    private function update_query( $tableName,$params,  $updateStatementWithValues,  $whereStatement) {
+    private function update_query( string $tableName,array $params, string $updateStatementWithValues, string $whereStatement): bool{
         $q = "UPDATE $tableName SET $updateStatementWithValues WHERE $whereStatement";
         $obj = $this->execute_query($q,$params);
         return ($obj != null);
     }
 
-    public function update_rights($id_uzivatel, $id_pravo){
+    public function update_rights(int $id_uzivatel,int $id_pravo): bool{
         $p=array($id_pravo,$id_uzivatel);
         $this->update_query("uzivatel",$p,"id_pravo=?","id_uzivatel=?");
     }
 
-    public function ban_user($id){
+    public function ban_user(int $id){
         $this->update_query(TB_USERS,array($id),"ban=true","id_uzivatel=?");
         //delete api keys
         $this->delete_query(TB_API_KEYS,array($id),"id_uzivatel=?");
@@ -263,7 +270,7 @@ class DB_Model
      * @param $id
      * @param $new_desc
      */
-    public function update_ardesc($id,$new_desc){
+    public function update_ardesc(int $id,string $new_desc){
         // update clanky set popis='popis' where id_clanek=id
         // update clanky set popis='' where id_clanek=id
 
@@ -276,7 +283,7 @@ class DB_Model
      * @param $id
      * @return bool
      */
-    public function ardecl($id){
+    public function ardecl(int $id): bool{
         return $this->update_query(TB_ARTICLE,array($id),"schvalen=2","id_clanek=?");
     }
 
@@ -287,12 +294,12 @@ class DB_Model
      * @param $key_words
      * @param $desc
      */
-    public function update_arinfo($id,$title,$key_words,$desc){
+    public function update_arinfo(int $id,string $title,string $key_words,string $desc){
         $p=array($title,$key_words,$desc,$id);
         $this->update_query(TB_ARTICLE,$p,"nazev=?, klicova_slova=?, popis=?","id_clanek=?");
     }
 
-    public function update_arfilepath($id,$new_file_name){
+    public function update_arfilepath(int $id,string $new_file_name){
         $p=array($new_file_name,$id);
         $this->update_query(TB_ARTICLE,$p,"nazev_souboru=?","id_clanek=?");
     }
@@ -302,7 +309,7 @@ class DB_Model
      * @param $id
      * @return bool
      */
-    public function aracc($id){
+    public function aracc(int $id): bool{
         return $this->update_query(TB_ARTICLE,array($id),"schvalen=1, datum_schvaleni=NOW()","id_clanek=?");
     }
 
@@ -314,7 +321,7 @@ class DB_Model
      * @param $rev_desc
      * @return bool
      */
-    public function revar($id_rev,$id_ar,$rev_val,$rev_desc){
+    public function revar(int $id_rev,int $id_ar,int $rev_val,string $rev_desc): bool{
         $vals = "hodnoceni=?, poznamky=?";
         $where = "id_clanek=? and id_recenzent=?";
 
@@ -324,27 +331,27 @@ class DB_Model
     }
 
     //// DELETES
-    private function delete_query( $tableName, $params,  $whereStatement) {
+    private function delete_query( string $tableName,string $params, string $whereStatement): bool{
         $q = "DELETE FROM $tableName WHERE $whereStatement";
         $obj = $this->execute_query($q,$params);
         return ($obj != null);
     }
 
-    public function deleteUser($id_uzivatel){
+    public function deleteUser(int $id_uzivatel){
         $this->delete_query(TB_USERS,array($id_uzivatel),"id_uzivatel = ?");
     }
 
-    public function  deletArticle($id_clanek){
+    public function  deletArticle(int $id_clanek): bool{
         return $this->delete_query(TB_ARTICLE,array($id_clanek),"id_clanek = ?");
     }
 
-    public function delrevs($id_ar){
+    public function delrevs(int $id_ar): bool{
         return $this->delete_query(TB_REVIEW,array($id_ar),"id_clanek=?");
     }
 
 
     //// API
-    public function new_auth_key($login,$pwd,$expiration){
+    public function new_auth_key(string $login,string $pwd,int $expiration): string{
         $user = $this->get_user_data($login);
         if(!$user) return self::UNKNOWN_LOGIN;
         if($user["ban"]) return self::BANNED;
@@ -359,12 +366,12 @@ class DB_Model
         return $key;
     }
 
-    public function get_api_key_by_id($id){
+    public function get_api_key_by_id(int $id): array{
         $params = array($id);
         return $this->select_query(TB_API_KEYS,$params,"id_uzivatel=?");
     }
 
-    public function verify_key($key, $rights){
+    public function verify_key(string $key,int $rights): bool{
         $params = array($key);
         $res = $this->select_query(VW_API_RIGHTS,$params,"klic=?");
         if(!$res) return false;

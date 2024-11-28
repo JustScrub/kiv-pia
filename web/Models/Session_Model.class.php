@@ -4,38 +4,38 @@ namespace conference\Models;
 
 class Session_Model
 {
-    const USER_ID = "id_uzivatel";
-    const USER_NAME = "jmeno_a_prijmeni";
-    const USER_RIGHTS = "pravo";
-    const USER_LANG = "lang";
+    const string USER_ID = "id_uzivatel";
+    const string USER_NAME = "jmeno_a_prijmeni";
+    const string USER_RIGHTS = "pravo";
+    const string USER_LANG = "lang";
 
     public function __construct()
     {
         session_start();
     }
 
-    public function set($key,$val){
+    public function set(string $key,mixed $val){
         $_SESSION[$key] = $val;
     }
 
-    public function get($key){
+    public function get(string $key): ?string{
         if($this->is_set($key))
             return $_SESSION[$key];
         else return null;
     }
 
-    public function get_user_data(){
+    public function get_user_data(): array{
         $userdata = array();
         foreach($_SESSION as $key => $val)
             $userdata[$key] = $val;
         return $userdata;
     }
 
-    public function is_set($key){
+    public function is_set(string $key): bool{
         return isset($_SESSION[$key]);
     }
 
-    public function remove($key){
+    public function remove(string $key){
         unset($_SESSION[$key]);
     }
 
@@ -47,7 +47,7 @@ class Session_Model
      * @param  [string]  $default             Default language for the site
      * @return [string]                       Language code/prefix
      */
-    private function get_browser_language( $default = 'en' ) {
+    private function get_browser_language( string $default = 'en' ): string {
         if ( isset( $_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ] ) ) {
 
             $langs = explode( ',', $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
@@ -64,13 +64,13 @@ class Session_Model
         return $default;
     }
 
-    public function set_lang($lang = null){
+    public function set_lang( ?string $lang = null){
         $lang = $lang ?? $this->get_browser_language();
         $this->set(self::USER_LANG,$lang);
     }
 
     //user_data: data as passed by DB_Model from get_user_data
-    public function login($user_data){
+    public function login(array $user_data){
         if(!$user_data) return;
         $this->set(self::USER_ID,$user_data["id_uzivatel"]);
         $this->set(self::USER_NAME,"$user_data[jmeno] $user_data[prijmeni]");
@@ -84,7 +84,7 @@ class Session_Model
         }
     }
 
-    public function is_logged(){
+    public function is_logged(): bool{
         return $this->is_set(self::USER_ID);
     }
 

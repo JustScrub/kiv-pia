@@ -4,7 +4,7 @@ namespace conference\Controllers;
 
 class Intro extends AController
 {
-    public function __construct($twig, $pdo)
+    public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->VIEW = "Intro.view.twig";
