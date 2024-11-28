@@ -4,6 +4,7 @@ namespace conference\Models;
 
 class Session_Model
 {
+    // session params
     const string USER_ID = "id_uzivatel";
     const string USER_NAME = "jmeno_a_prijmeni";
     const string USER_RIGHTS = "pravo";
@@ -14,16 +15,25 @@ class Session_Model
         session_start();
     }
 
+    /**
+     * set a value to a session param
+     */
     public function set(string $key,mixed $val){
         $_SESSION[$key] = $val;
     }
 
+    /**
+     * get a session param
+     */
     public function get(string $key): ?string{
         if($this->is_set($key))
             return $_SESSION[$key];
         else return null;
     }
 
+    /**
+     * get all session params as a copy
+     */
     public function get_user_data(): array{
         $userdata = array();
         foreach($_SESSION as $key => $val)
@@ -31,10 +41,16 @@ class Session_Model
         return $userdata;
     }
 
+    /**
+     * check if session param is set
+     */
     public function is_set(string $key): bool{
         return isset($_SESSION[$key]);
     }
 
+    /**
+     * unset a session param
+     */
     public function remove(string $key){
         unset($_SESSION[$key]);
     }
@@ -64,12 +80,18 @@ class Session_Model
         return $default;
     }
 
+    /**
+     * set the default language session param
+     */
     public function set_lang( ?string $lang = null){
         $lang = $lang ?? $this->get_browser_language();
         $this->set(self::USER_LANG,$lang);
     }
 
-    //user_data: data as passed by DB_Model from get_user_data
+    /**
+     * set login session params from the DB record
+     * @param array user_data user's data as returned from DB_Model::get_user_data
+     */
     public function login(array $user_data){
         if(!$user_data) return;
         $this->set(self::USER_ID,$user_data["id_uzivatel"]);
@@ -77,6 +99,9 @@ class Session_Model
         $this->set(self::USER_RIGHTS,$user_data["id_pravo"]);
     }
 
+    /**
+     * unset login session params, essentially logging the user out
+     */
     public function logout(){
         foreach( $_SESSION as $key => $_){
             if ($key != self::USER_LANG)
@@ -84,6 +109,9 @@ class Session_Model
         }
     }
 
+    /**
+     * whether the user is logged
+     */
     public function is_logged(): bool{
         return $this->is_set(self::USER_ID);
     }

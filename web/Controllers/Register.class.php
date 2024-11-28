@@ -19,12 +19,12 @@ class Register extends AController
     {
         $this->init();
 
+        // template parameters
         $this->view_data["registered"] = false;
         $this->view_data["same"] = array();
 
-
-        if($this->session->is_logged())
-            $this->view_data["registered"] = true;
+        if($this->session->is_logged()) // cannot register already logged user xd
+            $this->view_data["registered"] = true; // when true, the page only congrats the user to registering, without showing register form
         else
             $this->register_process();
 
@@ -32,6 +32,9 @@ class Register extends AController
     }
 
 
+    /**
+     * process the registration form
+     */
     public function register_process(){
         if(!isset($_POST["reg_but"])) {
             $this->view_data["registered"] = false;

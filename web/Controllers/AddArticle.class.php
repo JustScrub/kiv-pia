@@ -10,9 +10,12 @@ class AddArticle extends ALoggedController
     public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
-        $this->min_rights = 4;
+        $this->min_rights = 4; // authors and higher
+
+        // specific view template parameters
         $this->view_data["bad_file_type"] = false;
         $this->view_data["form_success"] = false;
+
         $this->titles = array("cz" => "Přidat článek", "en" => "Add article");
     }
 
@@ -25,6 +28,11 @@ class AddArticle extends ALoggedController
         echo $this->twig->render($this->VIEW,$this->view_data);
     }
 
+    /**
+     * process the add article form
+     * Articles in DB are just meta-info about the articles
+     * the actual file is stored in the FS to keep DB records small
+     */
     private function process_form(){
         if(!isset($_POST["submit"])) return;
 

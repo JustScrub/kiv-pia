@@ -8,7 +8,7 @@ class ReviewReview extends ALoggedController
     public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
-        $this->min_rights = 2;
+        $this->min_rights = 2; // admins
         $this->view_data["title"] = "Rozhodnout recenze";
         $this->titles = array("cz" => "Rozhodnout recenze", "en" => "Review reviews");
     }
@@ -26,6 +26,8 @@ class ReviewReview extends ALoggedController
         $this->process_form();
 
         $this->VIEW = "ReviewReview.view.twig";
+
+        // articles with enough reviews to decide whether to decline or not
         $clanky = $this->pdo->arenrev();
         //var_dump($this->view_data["clanky"]);
 
@@ -59,6 +61,9 @@ class ReviewReview extends ALoggedController
         echo $this->twig->render($this->VIEW,$this->view_data);
     }
 
+    /**
+     * process article action: accept the article, decline it or return to reviewing stage (with new reviewers)
+     */
     private function process_form(){
         if(isset( $_POST["schvalit"] )){
             $this->pdo->aracc($_POST["ar_id"]);

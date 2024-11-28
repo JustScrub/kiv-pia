@@ -9,34 +9,37 @@ use Twig\Environment;
 abstract class AController
 {
 
+    /* names of website button to process login form from any subsite */
     const LOGIN_BUTTON_NAME = "log_but";
     const LOGIN_INP_NAME = "login";
     const PASS_INP_NAME = "pass";
 
     const LOGOUT_BUTTON_NAME = "logout_but";
 
-    //TODO: TEST language switch
+    // and language switch button
     const LANG_SWITCH_NAME = "lang_switch";
 
-    protected Twig\Environment $twig;
-    protected DB_Model $pdo;
-    protected Session_Model $session;
-    protected string $VIEW;
-    protected array $view_data;
-    protected array $titles;
+    protected Twig\Environment $twig; // View generator
+    protected DB_Model $pdo;          // DB access
+    protected Session_Model $session; // Sessions -- state including logged user data, chosen language
+    protected string $VIEW;           // name of view template file
+    protected array $view_data;       // data passed to fill the template
+    protected array $titles;          // page title in czech and english
 
 
     /**
-     * @param $twig Environment
-     * @param $pdo DB_Model
+     * @param $twig Environment to generate the View
+     * @param $pdo DB_Model to access the Database
      */
     public function __construct(Twig\Environment $twig, DB_model $pdo){
         $this->twig = $twig;
         $this->pdo = $pdo;
         $this->session = new Session_Model;
+
+        //set defaults, overriden in subclasses 
         $this->VIEW = null;
         $title = $_GET["page"] ?? "";
-        $this->view_data = array(
+        $this->view_data = array(  // common parameters of the templates
             "title" => $title,
             "bad_login" => false,
             "ban" => false,
@@ -48,8 +51,18 @@ abstract class AController
         );
         $this->titles = array("cz" => $title,"en" => $title);
     }
+
+    /**
+     * To be overriden in subclasses
+     * processes forms of the specific controller, 
+     * handles everything it is supposed to
+     * and renders the page HTML from the view template
+     */
     public abstract function do_stuff();
 
+    /**
+     * initializes the controllers
+     */
     public function init()
     {
         $this->logout_process();
@@ -59,6 +72,9 @@ abstract class AController
         $this->set_session_data();
     }
 
+    /**
+     * set state of the client -- login data and language
+     */
     public function set_session_data(){
         if($this->view_data["logged"] = $this->session->is_logged()){
             $this->view_data["user"] =  $this->session->get(Session_Model::USER_NAME);
@@ -71,6 +87,10 @@ abstract class AController
         $this->view_data["lang"] = $this->session->get(Session_Model::USER_LANG) ?? "en";
     }
 
+    /**
+     * self explanatory?
+     * sets language of the website based on the clicked language button
+     */
     public function set_lang(){
         if(isset($_POST[self::LANG_SWITCH_NAME])){
             $lang = strtolower($_POST[self::LANG_SWITCH_NAME]);
@@ -78,6 +98,10 @@ abstract class AController
         }
     }
 
+    /**
+     * if the user submitted the logout form,
+     * logs the user out (deletes logged user data from session)
+     */
     public function logout_process(){
         if(!isset($_POST[self::LOGOUT_BUTTON_NAME])) return;
 
@@ -85,6 +109,11 @@ abstract class AController
         header('Location: index.php');
     }
 
+    /**
+     * if the user submitted the login form,
+     * tries to log the user in (login and passwd check, ban check)
+     * @return int error state 
+     */
     public function login_process(): int{
         if(!isset($_POST[self::LOGIN_BUTTON_NAME])) return -1;
 

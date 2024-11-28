@@ -18,13 +18,14 @@ require_once "Models/DB_Model.class.php";
 require_once "Controllers/Api.class.php";
 require 'Composer/vendor/autoload.php';
 
-
+// call the service, if specified
 if(isset($_GET["service"])){
     $service = $_GET["service"];
     $db = new \conference\Models\DB_Model;
     $controller = new \conference\Controllers\Api($db);
-    $controller->execute_service($service);
+    $controller->execute_service($service); // let him cook
 }
+// else print OpenAPI documentation
 else{
     header("Content-Type: text/yaml");
     readfile("api-doc.yaml");

@@ -10,8 +10,8 @@ use function Sodium\add;
 
 class DB_Model
 {
-    private PDO $pdo;
-    private string $last_err;
+    private PDO $pdo; //PDO instance
+    private string $last_err; // err code
 
     public function __construct()
     {
@@ -24,6 +24,9 @@ class DB_Model
         return $this->last_err;
     }
 
+    /**
+     * executes a SQL query using PDO prepared statement
+     */
     private function execute_query(string $query,array $params): ?PDOStatement{
         // a'); update uzivatel set jmeno='Kuba' where id_uzivatel=3; --
         try {
@@ -48,6 +51,12 @@ class DB_Model
     }
 
     //// SELECTS
+
+    /**
+     * generic select SQL query
+     * select all columns
+     * returns rows as assoc arrays
+     */
     public function select_query(
         string $tab_name, 
         array $params,
@@ -96,6 +105,7 @@ class DB_Model
         return $this->select_query(TB_USERS,null,"id_pravo<=2");
     }
 
+    // login error statuses
     const int UNKNOWN_LOGIN = 1;
     const int WRONG_PASSWORD = 2;
     const int BANNED = 3;
@@ -115,7 +125,7 @@ class DB_Model
 
     public function articles_by_author(int $author_id): ?array{
         $params=array($author_id);
-        return $this->select_query(TB_ARTICLE,$params,"id_autor=?","id_clanek", "desc");
+        return $this->select_query(TB_ARTICLE,$params,"id_autor=? and nazev_souboru != 'tmp-$author_id'","id_clanek", "desc");
     }
 
     public function get_tmp_article(int $user_id): ?array{
@@ -206,8 +216,14 @@ class DB_Model
     public function get_latest_accepted_articles(): ?array{
         return $this->select_query(TB_ARTICLE,null,"schvalen=1 and datum_schvaleni>DATE_SUB(NOW(),INTERVAL 1 WEEK)");
     }
+
+
     //// INSERTS
 
+    /**
+     * generic insert query
+     * returns whether successful
+     */
     public function insert_query(string $tableName, array $p, string $insertStatement, string $insertValues): bool{
         $q = "INSERT INTO $tableName($insertStatement) VALUES ($insertValues);";
         $obj = $this->execute_query($q,$p);
@@ -247,7 +263,13 @@ class DB_Model
         $values = "?,?";
         return $this->insert_query(TB_REVIEW,$p,$statement,$values);
     }
-    //// UPDATES
+
+
+    //// 
+    
+    /**
+     * generic update query
+     */
     private function update_query( string $tableName,array $params, string $updateStatementWithValues, string $whereStatement): bool{
         $q = "UPDATE $tableName SET $updateStatementWithValues WHERE $whereStatement";
         $obj = $this->execute_query($q,$params);
@@ -299,6 +321,9 @@ class DB_Model
         $this->update_query(TB_ARTICLE,$p,"nazev=?, klicova_slova=?, popis=?","id_clanek=?");
     }
 
+    /**
+     * update ARticle file path
+     */
     public function update_arfilepath(int $id,string $new_file_name){
         $p=array($new_file_name,$id);
         $this->update_query(TB_ARTICLE,$p,"nazev_souboru=?","id_clanek=?");
@@ -331,6 +356,10 @@ class DB_Model
     }
 
     //// DELETES
+
+    /**
+     * generic delete query
+     */
     private function delete_query( string $tableName,string $params, string $whereStatement): bool{
         $q = "DELETE FROM $tableName WHERE $whereStatement";
         $obj = $this->execute_query($q,$params);
@@ -345,12 +374,19 @@ class DB_Model
         return $this->delete_query(TB_ARTICLE,array($id_clanek),"id_clanek = ?");
     }
 
+    /**
+     * remove reviews (and reviewers) of an article
+     */
     public function delrevs(int $id_ar): bool{
         return $this->delete_query(TB_REVIEW,array($id_ar),"id_clanek=?");
     }
 
 
     //// API
+
+    /**
+     * create new API key after verification
+     */
     public function new_auth_key(string $login,string $pwd,int $expiration): string{
         $user = $this->get_user_data($login);
         if(!$user) return self::UNKNOWN_LOGIN;
@@ -366,11 +402,17 @@ class DB_Model
         return $key;
     }
 
+    /**
+     * get API key of a user
+     */
     public function get_api_key_by_id(int $id): array{
         $params = array($id);
         return $this->select_query(TB_API_KEYS,$params,"id_uzivatel=?");
     }
 
+    /**
+     * Check the key is valid: not expired and has sufficient rights (same as owner)
+     */
     public function verify_key(string $key,int $rights): bool{
         $params = array($key);
         $res = $this->select_query(VW_API_RIGHTS,$params,"klic=?");

@@ -7,6 +7,7 @@ use Couchbase\ViewQuery;
 
 class MyArcticles extends ALoggedController
 {
+    // form input names
     const string EDIT_BUT = "edit_ok";
     const string DELETE_BUT = "ar_delete";
     const string CANCEL_BUT = "edit_cancel";
@@ -33,6 +34,9 @@ class MyArcticles extends ALoggedController
         echo $this->twig->render($this->VIEW,$this->view_data);
     }
 
+    /**
+     * process action done on an article: edit description, delete it, or cancel
+     */
     private function process_form(){
         if(isset( $_POST[self::EDIT_BUT] )){
             $this->pdo->update_ardesc($_POST["ar_id"], $_POST["popis_edit"]);

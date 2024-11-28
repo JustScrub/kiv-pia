@@ -10,7 +10,7 @@ class ReviewArticle extends ALoggedController
     public function __construct(Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
-        $this->min_rights = 3;
+        $this->min_rights = 3; // reviewers
         $this->view_data["title"] = "Recenzovat";
         $this->titles = array("cz" => "Recenzovat", "en" => "Review");
     }
@@ -23,6 +23,8 @@ class ReviewArticle extends ALoggedController
 
         if(!$this->VIEW){
             $this->VIEW = "ReviewArticle.view.twig";
+
+            // get articles the current reviewer is assigned to
             $clanky = $this->pdo->artorev($this->session->get(Session_Model::USER_ID));
 
             //additional info for all articles: author's name
@@ -39,6 +41,9 @@ class ReviewArticle extends ALoggedController
         echo $this->twig->render($this->VIEW,$this->view_data);
     }
 
+    /**
+     * adding a review to an article form
+     */
     private function process_form(){
         if(!isset( $_POST["add_review"] )) return;
 
