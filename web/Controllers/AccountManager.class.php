@@ -11,9 +11,9 @@ class AccountManager extends ALoggedController
     const string USER_ID_NAME = "id_uzivatel";
     const string RIGHT_NAME = "prava_select";
 
-    private string $get_all;         // method "pointer" to the method that returns the correct account roles (admins or users)
-    private string $def_view;        // the view template name -- subclasses use this parameter, this class sets the view for them
-    private array $ofWhatManagement; // the role which the sublcassed management page is supposed to enable management of (admins or users), in czech and english
+    protected string $get_all;         // method "pointer" to the method that returns the correct account roles (admins or users)
+    protected string $def_view;        // the view template name -- subclasses use this parameter, this class sets the view for them
+    protected array $ofWhatManagement; // the role which the sublcassed management page is supposed to enable management of (admins or users), in czech and english
 
     public function __construct(\Twig\Environment $twig, DB_model $pdo)
     {
