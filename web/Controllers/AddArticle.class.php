@@ -3,11 +3,12 @@
 namespace conference\Controllers;
 
 use conference\Models\Session_Model;
+use conference\Models\DB_Model;
 
 class AddArticle extends ALoggedController
 {
 
-    public function __construct(Twig\Environment $twig, DB_model $pdo)
+    public function __construct(\Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->min_rights = 4; // authors and higher

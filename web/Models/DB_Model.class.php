@@ -27,7 +27,7 @@ class DB_Model
     /**
      * executes a SQL query using PDO prepared statement
      */
-    private function execute_query(string $query,array $params): ?PDOStatement{
+    private function execute_query(string $query, ?array $params): ?PDOStatement{
         // a'); update uzivatel set jmeno='Kuba' where id_uzivatel=3; --
         try {
             $stmt = $this->pdo->prepare($query);
@@ -59,7 +59,7 @@ class DB_Model
      */
     public function select_query(
         string $tab_name, 
-        array $params,
+        ?array $params,
         string $condition = "", 
         string $order_by = "", 
         string $sort_order = "ASC"): ?array{
@@ -224,7 +224,7 @@ class DB_Model
      * generic insert query
      * returns whether successful
      */
-    public function insert_query(string $tableName, array $p, string $insertStatement, string $insertValues): bool{
+    public function insert_query(string $tableName, ?array $p, string $insertStatement, string $insertValues): bool{
         $q = "INSERT INTO $tableName($insertStatement) VALUES ($insertValues);";
         $obj = $this->execute_query($q,$p);
         return ($obj != null);
@@ -270,7 +270,7 @@ class DB_Model
     /**
      * generic update query
      */
-    private function update_query( string $tableName,array $params, string $updateStatementWithValues, string $whereStatement): bool{
+    private function update_query( string $tableName,?array $params, string $updateStatementWithValues, string $whereStatement): bool{
         $q = "UPDATE $tableName SET $updateStatementWithValues WHERE $whereStatement";
         $obj = $this->execute_query($q,$params);
         return ($obj != null);
@@ -360,7 +360,7 @@ class DB_Model
     /**
      * generic delete query
      */
-    private function delete_query( string $tableName,string $params, string $whereStatement): bool{
+    private function delete_query( string $tableName, ?array $params, string $whereStatement): bool{
         $q = "DELETE FROM $tableName WHERE $whereStatement";
         $obj = $this->execute_query($q,$params);
         return ($obj != null);

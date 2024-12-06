@@ -1,6 +1,7 @@
 <?php
 
 namespace conference\Controllers;
+use conference\Models\DB_Model;
 
 class AccountManager extends ALoggedController
 {
@@ -14,7 +15,7 @@ class AccountManager extends ALoggedController
     private string $def_view;        // the view template name -- subclasses use this parameter, this class sets the view for them
     private array $ofWhatManagement; // the role which the sublcassed management page is supposed to enable management of (admins or users), in czech and english
 
-    public function __construct(Twig\Environment $twig, DB_model $pdo)
+    public function __construct(\Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         // defaults to be overriden in subclass

@@ -8,7 +8,7 @@ use conference\Models\Session_Model;
 class Register extends AController
 {
 
-    public function __construct(Twig\Environment $twig, DB_model $pdo)
+    public function __construct(\Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->VIEW = "Register.view.twig";

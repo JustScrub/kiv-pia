@@ -7,7 +7,7 @@ class Logger_Model
     //All functions return $this for chaining
 
     const string LOG_FILE = ROOT_DIR."/LOG.txt"; // log file name
-    private resource $file;
+    private $file;
 
     public function __construct()
     {

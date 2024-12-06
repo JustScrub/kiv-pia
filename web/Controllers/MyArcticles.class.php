@@ -3,6 +3,7 @@
 namespace conference\Controllers;
 
 use conference\Models\Session_Model;
+use conference\Models\DB_Model;
 use Couchbase\ViewQuery;
 
 class MyArcticles extends ALoggedController
@@ -12,7 +13,7 @@ class MyArcticles extends ALoggedController
     const string DELETE_BUT = "ar_delete";
     const string CANCEL_BUT = "edit_cancel";
 
-    public function __construct(Twig\Environment $twig, DB_model $pdo)
+    public function __construct(\Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->min_rights = 4;

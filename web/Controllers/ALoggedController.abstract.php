@@ -3,6 +3,7 @@
 namespace conference\Controllers;
 
 use conference\Models\Session_Model;
+use conference\Models\DB_Model;
 
 abstract class ALoggedController extends AController
 {
@@ -11,7 +12,7 @@ abstract class ALoggedController extends AController
     // access the site
     protected int $min_rights;
     
-    public function __construct(Twig\Environment $twig, conference\Models\DB_Model $pdo)
+    public function __construct(\Twig\Environment $twig, DB_Model $pdo)
     {
         parent::__construct($twig, $pdo);
         $this->view_data["reason"] = "none"; // common template parameter for logged pages: reason for prohibiting access

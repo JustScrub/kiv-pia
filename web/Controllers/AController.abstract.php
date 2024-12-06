@@ -4,7 +4,7 @@ namespace conference\Controllers;
 
 use conference\Models\DB_Model;
 use conference\Models\Session_Model;
-use Twig\Environment;
+use \Twig\Environment;
 
 abstract class AController
 {
@@ -19,10 +19,10 @@ abstract class AController
     // and language switch button
     const LANG_SWITCH_NAME = "lang_switch";
 
-    protected Twig\Environment $twig; // View generator
+    protected Environment $twig;      // View generator
     protected DB_Model $pdo;          // DB access
     protected Session_Model $session; // Sessions -- state including logged user data, chosen language
-    protected string $VIEW;           // name of view template file
+    protected ?string $VIEW;           // name of view template file
     protected array $view_data;       // data passed to fill the template
     protected array $titles;          // page title in czech and english
 
@@ -31,7 +31,7 @@ abstract class AController
      * @param $twig Environment to generate the View
      * @param $pdo DB_Model to access the Database
      */
-    public function __construct(Twig\Environment $twig, DB_model $pdo){
+    public function __construct(Environment $twig, DB_model $pdo){
         $this->twig = $twig;
         $this->pdo = $pdo;
         $this->session = new Session_Model;

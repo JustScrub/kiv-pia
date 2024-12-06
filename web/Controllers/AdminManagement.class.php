@@ -3,11 +3,12 @@
 namespace conference\Controllers;
 
 use conference\Models\Session_Model;
+use conference\Models\DB_Model;
 
 class AdminManagement extends AccountManager
 {
 
-    public function __construct(Twig\Environment $twig, DB_model $pdo)
+    public function __construct(\Twig\Environment $twig, DB_model $pdo)
     {
         parent::__construct($twig, $pdo);
         //just fill data for the superclass
