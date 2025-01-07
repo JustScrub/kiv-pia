@@ -28,6 +28,9 @@ jobs:
           WSS_HOST = localhost # "publicly" reachable hostname of the websocket server -- accessed outside of container!
           EOF
 
+      - name: Install composer dependencies
+        run: cd web/Composer && composer install
+
       - name: Run app
         run: docker compose up -d
 
