@@ -17,6 +17,17 @@ jobs:
       - name: Modify compose for test
         run: sed -i "s|#APITESTSQLSCRIPT|- ./SQL_Scripts/api_test_data.sql|" compose.yaml 
 
+      - name: Generate .env file
+        run: | 
+          cat <<EOF > .env
+          DB_NAME = kiv_pia_test
+          DB_USER = kiv_pia_root
+          DB_PASS = kiv_pia_pass
+          WEB_PORT = 80
+          PMA_PORT = 81
+          WSS_HOST = localhost # "publicly" reachable hostname of the websocket server -- accessed outside of container!
+          EOF
+
       - name: Run app
         run: docker compose up -d
 
