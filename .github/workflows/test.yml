@@ -40,7 +40,7 @@ jobs:
           time: '2m'
 
       - name: Run tests
-        run: cd API_test && ./runtests.sh
+        run: cd API_test && ./runtests.sh && cat result.txt
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
