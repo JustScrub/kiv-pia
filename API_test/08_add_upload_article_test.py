@@ -80,7 +80,7 @@ def test_upload_no_add():
 def test_upload_ok():
     with open("test-article.pdf", "rb") as f:
         data = f.read()
-    ardir_content_before = os.listdir("../Articles")
+    ardir_content_before = os.listdir("../web/Articles")
     response = requests.post(f'{HOST}/api.php?service=add_article', 
                              headers={'Authorization': get_id("adar")},
                              json={"title": "Add article test", "descr": "Test", "key-words": "Test"})
@@ -88,10 +88,10 @@ def test_upload_ok():
                                  headers={'Authorization': get_id("adar"), 'Content-Type': 'application/pdf'},
                                  data=data)
     assert response.status_code == 200
-    ardir_content = os.listdir("../Articles")
+    ardir_content = os.listdir("../web/Articles")
     assert len(ardir_content) == len(ardir_content_before) + 1
     fname = [f for f in ardir_content if f not in ardir_content_before][0]
-    with open("../Articles/" + fname, "rb") as f:
+    with open("../web/Articles/" + fname, "rb") as f:
         assert f.read() == data
     response = requests.get(f'{HOST}/api.php?service=get_user_articles&login=adar', 
                             headers={'Authorization': get_id("adar")})

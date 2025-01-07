@@ -42,6 +42,7 @@ services:
     # the order of the files is important! (alphabetical order)
     # https://hub.docker.com/_/mysql
       - ./SQL_Scripts/create.sql:/docker-entrypoint-initdb.d/01.sql
+      #APITESTSQLSCRIPT
     # mount the volume to persist the data
       - pia_mysql_data:/var/lib/mysql
 

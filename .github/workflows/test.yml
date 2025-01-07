@@ -1,0 +1,38 @@
+#
+name: Run and test the app
+
+# Configures this workflow to run every time a change is pushed to the branch called `release`.
+on:
+  push:
+    branches: ['release']
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Modify compose for test
+        run: sed -i "s|#APITESTSQLSCRIPT|- ./SQL_Scripts/api_test_data.sql|" compose.yaml 
+
+      - name: Run app
+        run: docker compose up -d
+
+      - name: install python dependencies
+        run: pip3 install -r ./API_test/requirements.txt
+
+      - name: Wait for the app to init
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '2m'
+
+      - name: Run tests
+        run: cd API_test && ./runtests.sh
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: API_test/result.txt
