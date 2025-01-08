@@ -385,7 +385,7 @@ class Api
      * @return ?array on error, return array, else send article contents and return null
      */
     public function show_article(array $body): ?array{
-        $id = $_GET["id"];
+        $id = intval($_GET["id"]);
         $file_id = $this->pdo->get_article($id);
         if(!$file_id){
             return array(
