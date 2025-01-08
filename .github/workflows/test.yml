@@ -43,10 +43,13 @@ jobs:
       - name: Wait for the app to init
         uses: jakejarvis/wait-action@master
         with:
-          time: '2m'
+          time: '1m'
 
       - name: Run tests
-        run: cd API_test && ./runtests.sh && cat result.txt
+        run: cd API_test && ./runtests.sh
+
+      - name: write test results
+        run: cat API_test/result.txt
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
