@@ -31,8 +31,8 @@ jobs:
       - name: Install composer dependencies
         run: cd web/Composer && composer install
 
-      #- name: Add permission to the Articles directory
-      #  run: chmod 777 -R web/Articles
+      - name: Add permission to the Articles directory
+        run: sudo chmod 777 -R web/Articles
 
       - name: Run app
         run: sudo docker compose up -d
