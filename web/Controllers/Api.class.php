@@ -148,7 +148,7 @@ class Api
     /**
      * checks the request parameters for the specified API endpoint
      */
-    private function params_check(string $service): array{
+    private function params_check(string $service): array|string {
         $reflection = new \ReflectionMethod($this,$service);
 
         // URL GET-like query parameters (?<param>=<value>&...)

@@ -10,7 +10,7 @@ def test_no_param():
 def test_db_noexist():
     response = requests.get(f'{HOST}/api.php?service=show_article&id=noexist', 
                             headers={'Authorization': get_id()})
-    assert response.status_code == 404
+    assert response.status_code == 404, response.text
     assert "Article not found" in response.json()["message"]
     assert response.json()["redirect"] == "/api.php?service=get_articles"
 
