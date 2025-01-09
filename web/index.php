@@ -34,6 +34,7 @@ $db = new \conference\Models\DB_Model;
 
 // instantiate the controller and let him cook
 $controller = new $controller_info["class_name"]($twig,$db);
+$controller->add_session(new \conference\Models\Session_Model);
 $controller->do_stuff();
 
 ?>

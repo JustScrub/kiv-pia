@@ -34,7 +34,6 @@ abstract class AController
     public function __construct(Environment $twig, DB_model $pdo){
         $this->twig = $twig;
         $this->pdo = $pdo;
-        $this->session = new Session_Model;
 
         //set defaults, overriden in subclasses 
         $this->VIEW = null;
@@ -50,6 +49,10 @@ abstract class AController
             "lang" => "en"
         );
         $this->titles = array("cz" => $title,"en" => $title);
+    }
+
+    public function add_session($session){
+        $this->session = $session;
     }
 
     /**
