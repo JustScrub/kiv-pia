@@ -157,7 +157,7 @@ Then, the `API_test/test-article.pdf` must be copied three times into `web/Artic
         cp API_test/test-article.pdf web/Articles/test5.pdf
         cp API_test/test-article.pdf web/Articles/test7.pdf
 
-Then, the project can be set up using `docker compose up -d`, and only after all the contaners are deployed and ready can the API be tested. The tests are run by calling `pytest` from the API_test directory. To make it easy call this from the root directory:
+Then, the project can be set up using `prj_init.sh`, and only after all the containers are deployed and ready can the API be tested. The tests are run by calling `pytest` from the API_test directory. To make it easy call this from the root directory:
 
         cd API_test && pytest -v | tee result.txt
 
