@@ -278,7 +278,7 @@ class DB_Model
 
     public function update_rights(int $id_uzivatel,int $id_pravo): bool{
         $p=array($id_pravo,$id_uzivatel);
-        $this->update_query("uzivatel",$p,"id_pravo=?","id_uzivatel=?");
+        return $this->update_query("uzivatel",$p,"id_pravo=?","id_uzivatel=?");
     }
 
     public function ban_user(int $id){
