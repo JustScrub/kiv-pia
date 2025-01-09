@@ -6,7 +6,7 @@ class Logger_Model
 {
     //All functions return $this for chaining
 
-    const string LOG_FILE = ROOT_DIR."/LOG.txt"; // log file name
+    const string LOG_FILE = ARTICLES_DIR."/LOG.txt"; // log file name
     private $file;
 
     public function __construct()
