@@ -28,14 +28,8 @@ jobs:
           WSS_HOST = localhost # "publicly" reachable hostname of the websocket server -- accessed outside of container!
           EOF
 
-      - name: Install composer dependencies
-        run: cd web/Composer && composer install
-
-      - name: Add permission to the Articles directory
-        run: sudo chmod -R 777 ./web/ && ls -la ./web/
-
-      - name: Run app
-        run: docker compose up -d
+      - name: Start the app
+        run: ./prj_init.sh
 
       - name: install python dependencies
         run: pip3 install -r ./API_test/requirements.txt
@@ -52,10 +46,7 @@ jobs:
           cp API_test/test-article.pdf web/Articles/test7.pdf
 
       - name: Run tests
-        run: cd API_test && pytest -v > result.txt
-
-      - name: write test results
-        run: cat API_test/result.txt
+        run: cd API_test && pytest -v | tee result.txt
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
