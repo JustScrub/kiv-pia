@@ -53,6 +53,8 @@ To deploy and run, clone the [https://github.com/JustScrub/kiv-pia] git reposito
 - PMA_PORT = port of PHPMyAdmin
 - WSS_HOST = "publicly" reachable hostname of the websocket server -- accessed by end users! (browsers)
 
+You will also need docker, docker compose plugin and at least python3.12 installed...
+
 Run `./prj_init.sh` -- installs web app dependencies and runs the containers. Wait until done, might take a while... Coffee time!
 
 To setup the SuperAdmin, register a new user in the web UI, then go to PHPMyAdmin and in the `uzivatel` table under your DB name, change your registered user's `id_pravo` column to value `1`.
