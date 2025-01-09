@@ -124,3 +124,31 @@ The website allows One Time Password user verification for sign in. The implemen
 Under the hood, the web server generates the OTP token and displays it to the user on the OTP login page. But since the web session and API communication are two separate connections, there is a "broker" required that passes data between the two connections. A WebSocket server has been therefore implemented to carry the role of such a broker and runs as one of the containers of this project. While on the OTP login page, the user's browser connects to the WebSocket server and hands it the OTP token, maintaining a connection to it. From the other side, the OTP login API endpoint recieves that OTP token along with the user's API token for authorization. From the API token, the endpoint figures out the user. Then, the endpoint also connects to the WebSocket server, providing the OTP token, user information and a digital signature of the OTP token, so that the message cannot be faked. The WebSocket server recieves this message and based on the matching OTP token (one recieved from browser, the other from API endpoint), sends user information to the browser via the open connection. The JavaScript in the browser then fills out a hidden form with the API data (passed via the WebSocket server) and submits it. The web server then checks the signature and in case of success, logs the user in.
 
 This implementation of OTP does not add another layer of security, it just provides another method of logging in to conform to the assignment. However, it has an interesting feature: in the process, the OTP token does not have to stay secret. If an attacker found its value and tried to log in with it, the victim would log into the attacker's account. As such, only the user's credentials (password) and API token must stay a secret, as usual. This technique could also be used to provide someone else one-time access to one's account without telling them the secrets.
+
+### REST API unit tests
+The above described REST API has been unit-tested using python and its pytest and requests packages. The testing scripts can be found in the API_test directory: each numbered python file corresponds to a "Test suite" which examines one API endpoint (or two in case of TS 08). The `common.py` script only contains shared utility functions repeated in the tests (such as obtaining an API token). The `test-article.pdf` file is an arbitrary PDF file that serves for testing article APIs.
+
+Before running the tests, several things have to be done. As this is a quite annoying process, a GitHub Workflow action has been written to test the application. It will be discussed after describing the testing setup process... If you do not wish to go through all of it, just download the test results artifact, as described in a subsection below.
+
+First, the python dependencies must be downloaded by calling `pip install -r requirements` from the API_test directory. Then, a new & fresh project instance must be run. It **must** be a new instance, with no data previously added to the users DB table (even if they were deleted afterward). To ease things up, before actually running the application, run
+
+        sed -i "s|#APITESTSQLSCRIPT|- ./SQL_Scripts/api_test_data.sql:/docker-entrypoint-initdb.d/02.sql|" compose.yaml 
+
+in the root directory of the project. This command substitues the `#APITESTSQLSCRIPT` string in the compose.yaml file for the string between the second and third `|` character of the command. It essentialy tells compose to bins `SQL_Scripts/api_test_data.sql` SQL script that initializes the database for unit tests to the MySQL container. As per [the documentation](https://hub.docker.com/_/mysql) (the *Initializing a fresh instance* section), the container will itself run the script.
+
+Then, the `API_test/test-article.pdf` must be copied three times into `web/Articles/` as `test1.pdf`, `test5.pdf` and `test7.pdf`:
+
+        cp API_test/test-article.pdf web/Articles/test1.pdf
+        cp API_test/test-article.pdf web/Articles/test5.pdf
+        cp API_test/test-article.pdf web/Articles/test7.pdf
+
+Then, the project can be set up using `docker compose up -d`, and only after all the contaners are deployed and ready can the API be tested. The tests are run by calling `pytest` from the API_test directory. To make it easy call this from the root directory:
+
+        cd API_test && pytest -v | tee result.txt
+
+**THE TESTS WILL DESTROY THE CONFIGURATION**, so they cannot be run multiple times. To run tests again, the whole configuration process must be done from the start, of course including spinning up new containers from scratch...
+
+#### GitHub Workflow test action
+... which is the reason a GitHub Workflow action has been setup for testing. The YAML description is at `.github/workflows/test.yaml`. Its sole purpose is to setup an environment for testing and running the unit tests, with outputting the test results as an artifact. The workflow is run when pushing to the 'release' branch (which does not currently exist) or manually.
+
+The test results artifact can be downloaded from GitHub, you just have to be logged in. Go to [https://github.com/JustScrub/kiv-pia/actions], find the last successful workflow run, click on its name, then scroll down and there should be an "artifacts" section. Under it, there is a table of artifact, only containing the 'test-results' artifact. Click the name to download it. GitHub zips it, so unpack the artifact and read the text file...
