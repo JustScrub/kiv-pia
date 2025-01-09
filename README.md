@@ -44,7 +44,20 @@ The web application serves as a mathematical conference forum with the following
     - can do whatever admins can
     - can also manage admins
 
-## Extension
+## Deployment
+To deploy and run, clone the [https://github.com/JustScrub/kiv-pia] git repository on your node, then create `.env` file in the root directory of the repository and setting the following values:
+- DB_NAME = name of the database in the MySQL container
+- DB_USER = login to the database
+- DB_PASS = password to the database
+- WEB_PORT = port of the application (recommended 80, 8880 for unit tests)
+- PMA_PORT = port of PHPMyAdmin
+- WSS_HOST = "publicly" reachable hostname of the websocket server -- accessed by end users! (browsers)
+
+Run `./prj_init.sh` -- installs web app dependencies and runs the containers. Wait until done, might take a while... Coffee time!
+
+To setup the SuperAdmin, register a new user in the web UI, then go to PHPMyAdmin and in the `uzivatel` table under your DB name, change your registered user's `id_pravo` column to value `1`.
+
+## Extensions
 To the baseline application, several extension have been added to comply with the assignment.
 
 ### Dockerization
