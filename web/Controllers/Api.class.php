@@ -630,7 +630,7 @@ class Api
                 "redirect" => "/api.php?service=add_article"
             );
         }
-        $filename = hash("sha256",$user_id . $article[0]["nazev"],true);
+        $filename = hash("sha256",$user_id . $article[0]["nazev"] . random_bytes(4),true);
         $filename = base64_encode($filename).".pdf";
         $filename = strtr($filename,"+/","-_");
         $filename = str_replace("=","",$filename);

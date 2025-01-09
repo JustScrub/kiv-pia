@@ -43,7 +43,7 @@ class AddArticle extends ALoggedController
             return;
         }
 
-        $filename = hash("sha256",$this->session->get(Session_Model::USER_ID) . $_POST["nazev"],true);
+        $filename = hash("sha256",$this->session->get(Session_Model::USER_ID) . $_POST["nazev"] . random_bytes(4),true);
         $filename = base64_encode($filename).".pdf";
         $filename = strtr($filename,"+/","-_");
         $filename = str_replace("=","",$filename);
