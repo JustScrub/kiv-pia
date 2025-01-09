@@ -45,8 +45,14 @@ jobs:
         with:
           time: '1m'
 
+      - name: Prepare tests
+        run: |
+          cp API_test/test-article.pdf web/Articles/test1.pdf
+          cp API_test/test-article.pdf web/Articles/test5.pdf
+          cp API_test/test-article.pdf web/Articles/test7.pdf
+
       - name: Run tests
-        run: cd API_test && ./runtests.sh
+        run: cd API_test && pytest -v > result.txt
 
       - name: write test results
         run: cat API_test/result.txt
