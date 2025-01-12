@@ -333,7 +333,7 @@ class Api
     #[OAT\Response(response: "404", description: "Not Found", content: new OAT\JsonContent(ref: "#/components/schemas/Error"))]
     #[ApiMeta(2)]
     /**
-     * get all articles of a user by their id
+     * get all articles of a user by their login
      * @param array body not used, parameters passed in query
      * @return array array of user's articles
      */

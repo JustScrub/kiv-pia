@@ -5,6 +5,7 @@ info:
 paths:
   '/api.php?service=get_auth_key':
     post:
+      summary: 'Get new authorization key for the provided user'
       description: 'Create new authorization key for the user with the optionally specified expiration time and return it'
       operationId: 34e0d9e7027bdc42a94b2fbb73a2d3d4
       requestBody:
@@ -55,6 +56,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=get_user':
     get:
+      summary: "get user info by user id\nif auth key belongs to admin, show more info"
       description: 'Get user info: first name, last name, email, id. Admins also get rights and banned status.'
       operationId: 382ffa4dc9ee2972e957c1e258232d09
       parameters:
@@ -110,16 +112,17 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=get_user_articles':
     get:
+      summary: 'get all articles of a user by their login'
       description: 'Get articles by user'
       operationId: cbc1ff07738ba8335e7198e95c0464e0
       parameters:
         -
-          name: id
+          name: login
           in: query
-          description: 'User ID'
+          description: 'User login or email'
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '200':
           description: OK
@@ -155,6 +158,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=show_article':
     get:
+      summary: 'Send contents of an article based on its ID'
       description: 'Get article contents article ID'
       operationId: 556ab51c15f1f3c868190de63f36ccc7
       parameters:
@@ -199,6 +203,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=get_articles':
     get:
+      summary: "get all accepted articles\nTODO: pagination"
       description: 'Get all ACCEPTED articles'
       operationId: c0807e8d1399e004e99f38aff59826f5
       responses:
@@ -230,6 +235,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=ban_users':
     put:
+      summary: "ban users by login or email\nadmins can only ban users, superadmins can ban admins"
       description: 'Ban users by logins or emails'
       operationId: e780d7d4726a19b2245e101ed99d534d
       requestBody:
@@ -268,6 +274,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=delete_article':
     delete:
+      summary: 'delete an owned article'
       description: 'Delete user article by ID'
       operationId: 48c1861b7ddde7237441a70d6ec63ffa
       parameters:
@@ -311,6 +318,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=add_article':
     put:
+      summary: "add to-be-filled article meta-data to the database\ncreate a \"tmp\" article for the user, with invalid FS path\nthis record will be updated by the upload_article API to set the actual path"
       description: 'Add article information'
       operationId: 747869e17690d3af570e8d659162904d
       requestBody:
@@ -319,13 +327,13 @@ paths:
             schema:
               required:
                 - title
-                - key-words
                 - descr
               properties:
                 title:
                   type: string
                 key-words:
                   type: string
+                  default: null
                 descr:
                   type: string
               type: object
@@ -356,6 +364,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/api.php?service=upload_article':
     post:
+      summary: "upload the content of the article the metadata of which were previously\nprovided by the add_article API endpoint"
       description: 'Upload article file'
       operationId: 39103b6ca6e03ac02ccada0a07038547
       requestBody:
@@ -395,12 +404,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/api.php?service=otp_login':
+    post:
+      summary: "OTP login endpoint\nwhen logging with OTP, the OTP is sent to this API to proceed with the login"
+      description: 'Login to website using OTP'
+      operationId: 8c33a5d5fbf80ab9daf49e6f5cb5d2da
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - otp
+              properties:
+                otp:
+                  type: string
+              type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Article:
       properties:
         id:
           description: 'Article ID'
+          type: integer
+        author_id:
+          description: 'Author ID'
           type: integer
         title:
           description: 'Article title'
