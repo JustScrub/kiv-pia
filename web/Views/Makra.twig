@@ -47,6 +47,6 @@
 {% endmacro %}
 
 
-{% macro schvaleni_stav_class(clanek, lang) %}
-{% if clanek.schvalen==0 %}{{ lang == "cz"? "neposouzeno" : "not reviewed" }}{% elseif clanek.schvalen==1 %}{{ lang == "cz"? "schvaleno" : "approved" }}{% else %}{{ lang == "cz"? "zamitnuto" : "rejected" }}{% endif %}
+{% macro schvaleni_stav_class(clanek) %}
+{% if clanek.schvalen==0 %} neposouzeno {% elseif clanek.schvalen==1 %} schvaleno {% else %} zamitnuto {% endif %}
 {% endmacro %}

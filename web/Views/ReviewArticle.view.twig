@@ -32,7 +32,7 @@
                                     <div class="form-group row">
                                         <label for="hodnoceni{{ clanek.id_clanek }}" class="col-sm-2 col-form-label">{{ lang == "cz"? "Hodnocení:" : "Rating:" }}</label>
                                         <div class="col-sm-2">
-                                            <input type="number" name="rev_val" class="form-control" min="1" max="10" id="hodnoceni{{ clanek.id_clanek }}">
+                                            <input type="number" name="rev_val" required class="form-control" min="1" max="10" id="hodnoceni{{ clanek.id_clanek }}">
                                         </div>
                                     </div>
                                     <div class="form-row">
