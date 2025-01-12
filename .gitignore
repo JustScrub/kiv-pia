@@ -2,3 +2,4 @@ web/Composer/vendor/
 LOG.txt
 web/Articles/*
 .env
+api_test_results.txt

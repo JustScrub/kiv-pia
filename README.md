@@ -55,9 +55,20 @@ To deploy and run, clone the [https://github.com/JustScrub/kiv-pia] git reposito
 
 You will also need docker, docker compose plugin and at least python3.12 installed...
 
-Run `./prj_init.sh` -- installs web app dependencies and runs the containers. Wait until done, might take a while... Coffee time!
+Run `./prj_init.sh` -- installs web app dependencies and runs the containers. Wait until done, might take a while... Coffee break! The `prj_init.sh` script accepts optional arguments:
+- `-t`: adds API testing data to DB (users, article metainfo)
+- `-a`: adds mock admins from the `SQL_Scripts/admin_mock_data.sql` script. One SuperAdmin and multiple admins. Logins of the admins are in the script, and all passwords are `test`
+- `-u`: adds mock users from the `SQL_Scripts/uzivatel_mock_data.sql`. Some basic users (authors) and some reviewers. Logins are in the script, passwords are `test`
 
-To setup the SuperAdmin, register a new user in the web UI, then go to PHPMyAdmin and in the `uzivatel` table under your DB name, change your registered user's `id_pravo` column to value `1`.
+e.g. `sudo ./prj_init.sh -au` adds mock admins and users, but not API test data. Running the script with at least one argument adds the startup data permanently (it modifies the compose.yaml before spinning the containers up), so subsequent deployments will contain the data, even if arguments are not specified. E.g. after running
+
+        sudo ./prj_init.sh -au
+        sudo docker compose down -v
+        sudo ./prj_init.sh -t
+
+the application will contain mock admins and users and API test data. The idea is to deploy the app only once per environment, and dispose of the environment as needed. If this is a problem, backup the original compose.yaml and restore it after running the script... 
+
+To setup a new SuperAdmin, register a new user in the web UI, then go to PHPMyAdmin and in the `uzivatel` table under your DB name, change your newly registered user's `id_pravo` column to value `1`.
 
 ## Extensions
 To the baseline application, several extension have been added to comply with the assignment.
