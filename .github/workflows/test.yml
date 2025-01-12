@@ -31,11 +31,6 @@ jobs:
       - name: install python dependencies
         run: pip3 install -r ./API_test/requirements.txt
 
-      - name: Wait for the app to init
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '1m'
-
       - name: Prepare test files
         run: |
           cp API_test/test-article.pdf web/Articles/test1.pdf

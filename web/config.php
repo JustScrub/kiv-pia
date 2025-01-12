@@ -52,4 +52,6 @@ const VW_NEED_REVIEW = "nedostatek_recenzentu";
 const VW_AUTHORS_ARTICLES = "autori_clanky";
 const VW_API_RIGHTS = "api_prava"; // key, rights, expiration
 
-
+define ("DEBUG", false);
+error_reporting(E_ALL);
+ini_set('display_errors', DEBUG ? 'On' : 'Off');
