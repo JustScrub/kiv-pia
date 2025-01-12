@@ -14,9 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Modify compose for test
-        run: sed -i "s|#APITESTSQLSCRIPT|- ./SQL_Scripts/api_test_data.sql:/docker-entrypoint-initdb.d/02.sql|" compose.yaml 
-
       - name: Generate .env file
         run: | 
           cat <<EOF > .env
@@ -29,7 +26,7 @@ jobs:
           EOF
 
       - name: Start the app
-        run: ./prj_init.sh
+        run: ./prj_init.sh -t
 
       - name: install python dependencies
         run: pip3 install -r ./API_test/requirements.txt
